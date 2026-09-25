@@ -1,0 +1,111 @@
+@import "tailwindcss";
+@import "@fontsource/fira-sans/400.css";
+@import "@fontsource/fira-sans/500.css";
+@import "@fontsource/fira-sans/600.css";
+@import "@fontsource/fira-sans/700.css";
+@import "@fontsource/fira-code/400.css";
+@import "@fontsource/fira-code/500.css";
+
+/*
+ * Tokens de CYPHERLOCK: mismos valores y nombres que AppColors (Flutter),
+ * para que web y app sean una sola marca. Usar SIEMPRE las utilidades
+ * (bg-surface, text-muted, border-divider...), nunca hex sueltos.
+ */
+@theme {
+  /* Primary (cyan) */
+  --color-primary: #06b6d4;
+  --color-primary-light: #22d3ee;
+  --color-primary-dark: #0891b2;
+
+  /* Fondos (slate) */
+  --color-background: #0f172a;
+  --color-surface: #1e293b;
+  --color-surface-light: #334155;
+  --color-divider: #334155;
+  /* Segunda capa neutra para barra lateral: un paso mas fria que el fondo */
+  --color-rail: #0b1222;
+
+  /* Texto (slate) */
+  --color-text-primary: #f8fafc;
+  --color-text-secondary: #cbd5e1;
+  --color-text-muted: #94a3b8;
+  --color-text-disabled: #64748b;
+
+  /* Semanticos */
+  --color-error: #ef4444;
+  --color-error-dark: #dc2626;
+  --color-success: #22c55e;
+  --color-warning: #f59e0b;
+  --color-info: #3b82f6;
+
+  /* Tipografia: una familia para la UI; mono solo para datos (UIDs, codigos, cifras) */
+  --font-sans: "Fira Sans", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "Fira Code", ui-monospace, "Cascadia Code", monospace;
+
+  /* Escala de producto (ratio ~1.2, fija en rem) */
+  --text-2xs: 0.6875rem;
+
+  --radius-card: 0.875rem;
+  --radius-control: 0.625rem;
+
+  /* Sombras con desplazamiento y desenfoque (profundidad real, no halos) */
+  --shadow-card: 0 1px 2px rgb(2 6 23 / 0.5), 0 8px 24px -12px rgb(2 6 23 / 0.7);
+  --shadow-pop: 0 12px 32px -8px rgb(2 6 23 / 0.8), 0 2px 6px rgb(2 6 23 / 0.5);
+
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@layer base {
+  html {
+    color-scheme: dark;
+    background-color: var(--color-background);
+    color: var(--color-text-primary);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+  body {
+    min-height: 100dvh;
+  }
+
+  /* Superficies del navegador tambien llevan la marca */
+  ::selection {
+    background-color: rgb(6 182 212 / 0.35);
+    color: var(--color-text-primary);
+  }
+  :focus-visible {
+    outline: 2px solid var(--color-primary-light);
+    outline-offset: 2px;
+    border-radius: 6px;
+  }
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: var(--color-surface-light) transparent;
+    caret-color: var(--color-primary-light);
+  }
+  ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: var(--color-surface-light);
+    border-radius: 999px;
+    border: 3px solid var(--color-background);
+  }
+  a {
+    text-underline-offset: 3px;
+  }
+  /* Cifras alineadas en tablas y metricas */
+  .tabular {
+    font-variant-numeric: tabular-nums;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+}
