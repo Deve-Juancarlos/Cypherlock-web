@@ -26,3 +26,7 @@ dist-ssr
 # Entorno local
 .env
 .env.local
+
+# Herramientas locales de Claude Code (skills, binarios, permisos)
+.claude/
+.env
