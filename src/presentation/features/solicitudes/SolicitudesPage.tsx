@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react'
 import { ClipboardList, Star } from 'lucide-react'
-import { formatDateTime, formatNumber } from '@/core/utils/format'
+import { formatDateTime, formatFechaCorta, formatNumber } from '@/core/utils/format'
 import { TRANSICIONES, type EstadoSolicitud, type Solicitud } from '@/domain/models'
 import { PageHeader } from '../../components/layout/AppShell'
 import { Badge, type Tone } from '../../components/ui/Badge'
@@ -41,7 +41,7 @@ const VERBO: Partial<Record<EstadoSolicitud, string>> = {
   CONFIRMADO: 'Confirmar',
   EN_CURSO: 'Iniciar',
   COMPLETADO: 'Completar',
-  PENDIENTE: 'Devolver a pendiente',
+  PENDIENTE: 'Devolver',
 }
 
 type Filtro = 'ABIERTAS' | EstadoSolicitud
@@ -60,7 +60,7 @@ function Acciones({ s }: { s: Solicitud }) {
     )
   const siguientes = TRANSICIONES[s.estado].filter((e) => e !== 'CANCELADO' && e !== 'ASIGNADO')
   return (
-    <div className="flex justify-end gap-2">
+    <div className="flex justify-end gap-1.5">
       {siguientes.map((e) => (
         <Button key={e} size="sm" variant={e === 'PENDIENTE' ? 'ghost' : 'secondary'} disabled={cambiar.isPending} onClick={() => mover(e)}>
           {VERBO[e] ?? LABEL[e]}
@@ -81,15 +81,15 @@ function Operadores() {
     <Panel>
       <PanelHeader title="Operadores" description="Carga y calidad del servicio." />
       {m.isPending ? (
-        <div className="flex flex-col gap-3 px-5 pb-5">{Array.from({ length: 3 }, (_, i) => <Skeleton key={i} className="h-10" />)}</div>
+        <div className="flex flex-col gap-3 p-4">{Array.from({ length: 3 }, (_, i) => <Skeleton key={i} className="h-10" />)}</div>
       ) : m.isError ? (
         <ErrorState error={m.error} onRetry={() => m.refetch()} />
       ) : m.data.length === 0 ? (
-        <p className="px-5 pb-5 text-sm text-text-muted">Cuando asignes solicitudes, aquí verás el avance de cada operador.</p>
+        <p className="p-4 text-[0.8125rem] text-text-muted">Cuando asignes solicitudes, aquí verás el avance de cada operador.</p>
       ) : (
-        <ul className="divide-y divide-divider/50 pb-2">
+        <ul className="divide-y divide-divider/70">
           {m.data.map((o) => (
-            <li key={o.operador} className="px-5 py-3">
+            <li key={o.operador} className="px-4 py-3">
               <div className="flex items-baseline justify-between gap-2">
                 <p className="truncate text-sm font-medium text-text-primary">{o.operador}</p>
                 <span className="inline-flex items-center gap-1 font-mono text-xs text-warning tabular">
@@ -97,7 +97,7 @@ function Operadores() {
                   {o.ratingPromedio ? o.ratingPromedio.toFixed(1) : '—'}
                 </span>
               </div>
-              <div className="mt-2 flex h-1.5 overflow-hidden rounded-full bg-background" aria-hidden>
+              <div className="mt-2 flex h-1 gap-px overflow-hidden bg-background" aria-hidden>
                 <span className="bg-success" style={{ width: `${o.total ? (o.completadas / o.total) * 100 : 0}%` }} />
                 <span className="bg-primary" style={{ width: `${o.total ? (o.enCurso / o.total) * 100 : 0}%` }} />
               </div>
@@ -131,9 +131,9 @@ export function SolicitudesPage() {
   return (
     <>
       <PageHeader title="Solicitudes" description="Pedidos de instalación: asignación, agenda y cierre." />
-      <div className="grid items-start gap-6 xl:grid-cols-[1fr_20rem]">
+      <div className="grid items-start gap-5 2xl:grid-cols-[minmax(0,1fr)_17rem]">
         <Panel>
-          <div className="flex flex-wrap items-center justify-between gap-3 border-b border-divider/60 px-5 py-4">
+          <div className="flex flex-wrap items-center justify-between gap-x-6 gap-y-2 border-b border-divider px-4 pt-1 pb-0 sm:pb-0">
             <Segmented
               label="Filtrar por estado"
               value={filtro}
@@ -144,7 +144,7 @@ export function SolicitudesPage() {
                 count: solicitudes.data ? lista.filter((s) => pasa(s, f)).length : undefined,
               }))}
             />
-            <SearchInput value={q} onChange={setQ} placeholder="Buscar cliente, teléfono u operador" label="Buscar solicitudes" />
+            <SearchInput value={q} onChange={setQ} placeholder="Cliente, teléfono u operador" label="Buscar solicitudes" />
           </div>
 
           {solicitudes.isPending ? (
@@ -174,15 +174,15 @@ export function SolicitudesPage() {
                   return (
                     <Tr key={s.id}>
                       <Td>
-                        <p className="font-medium text-text-primary">
-                          {s.cliente} <span className="font-mono text-2xs text-text-disabled">#{s.id}</span>
+                        <p className="whitespace-nowrap font-medium text-text-primary">
+                          {s.cliente} <span className="font-mono text-2xs font-normal text-text-disabled">#{s.id}</span>
                         </p>
-                        <p className="text-xs text-text-muted">
+                        <p className="whitespace-nowrap text-xs text-text-muted">
                           {s.telefono}
                           {s.zona && ` · ${s.zona}`}
                         </p>
                       </Td>
-                      <Td className="text-xs whitespace-nowrap">{s.fechaCita ? formatDateTime(s.fechaCita) : <span className="text-text-disabled">Sin agendar</span>}</Td>
+                      <Td className="font-mono text-xs whitespace-nowrap">{s.fechaCita ? <span title={formatDateTime(s.fechaCita)}>{formatFechaCorta(s.fechaCita)}</span> : <span className="text-text-disabled">Sin agendar</span>}</Td>
                       <Td>
                         {abierta ? (
                           <MiniSelect
@@ -210,7 +210,7 @@ export function SolicitudesPage() {
                         )}
                       </Td>
                       <Td><Badge tone={TONE[s.estado]} dot>{LABEL[s.estado]}</Badge></Td>
-                      <Td><Acciones s={s} /></Td>
+                      <Td className="whitespace-nowrap"><Acciones s={s} /></Td>
                     </Tr>
                   )
                 })}

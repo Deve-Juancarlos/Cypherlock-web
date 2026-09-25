@@ -13,7 +13,7 @@ import { InputField, MiniSelect, SelectField } from '../../components/ui/Field'
 import { Panel } from '../../components/ui/Panel'
 import { Sheet } from '../../components/ui/Sheet'
 import { EmptyState, ErrorState, TableSkeleton } from '../../components/ui/States'
-import { Avatar, SearchInput, Segmented, Table, Td, Th, Tr } from '../../components/ui/Table'
+import { SearchInput, Segmented, Table, Td, Th, Tr } from '../../components/ui/Table'
 import { useToast } from '../../components/ui/Toast'
 import {
   useCambiarRol,
@@ -206,7 +206,7 @@ export function UsuariosPage() {
         actions={<Button variant="primary" onClick={() => setNuevo(true)} icon={<UserPlus className="size-4" aria-hidden />}>Nueva cuenta</Button>}
       />
       <Panel>
-        <div className="flex flex-wrap items-center justify-between gap-3 border-b border-divider/60 px-5 py-4">
+        <div className="flex flex-wrap items-center justify-between gap-x-6 gap-y-2 border-b border-divider px-4 pt-1">
           <Segmented
             label="Filtrar por rol"
             value={filtro}
@@ -251,7 +251,6 @@ export function UsuariosPage() {
                   <Tr key={u.id}>
                     <Td>
                       <div className="flex items-center gap-3">
-                        <Avatar name={u.username} />
                         <div className="min-w-0">
                           <p className="truncate font-medium text-text-primary">
                             {u.username} {esYo && <span className="text-xs font-normal text-text-muted">(tú)</span>}
@@ -285,9 +284,9 @@ export function UsuariosPage() {
                       <Badge tone={u.activo ? 'success' : 'neutral'} dot>{u.activo ? 'Activa' : 'Desactivada'}</Badge>
                     </Td>
                     <Td className="font-mono text-xs tabular">{u.casaId ?? '—'}</Td>
-                    <Td className="text-xs whitespace-nowrap">{formatDate(u.creadoEn)}</Td>
+                    <Td className="font-mono text-xs whitespace-nowrap">{formatDate(u.creadoEn)}</Td>
                     <Td>
-                      <div className="flex justify-end gap-2">
+                      <div className="flex justify-end gap-1">
                         {!esAdmin && u.activo && (
                           <Button size="sm" variant="ghost" onClick={() => setPromover(u)}>Promover</Button>
                         )}
@@ -295,7 +294,7 @@ export function UsuariosPage() {
                           (u.activo ? (
                             <ConfirmButton
                               size="sm"
-                              variant="secondary"
+                              variant="ghost"
                               confirmLabel="¿Desactivar?"
                               onConfirm={() =>
                                 setActivo.mutate(

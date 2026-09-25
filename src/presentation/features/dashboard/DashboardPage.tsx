@@ -3,7 +3,6 @@ import { ArrowRight, Radio } from 'lucide-react'
 import { cn } from '@/core/utils/cn'
 import { formatNumber } from '@/core/utils/format'
 import type { Resumen } from '@/domain/models'
-import { useCurrentUser } from '../../app/providers'
 import { PageHeader } from '../../components/layout/AppShell'
 import { Panel, PanelHeader } from '../../components/ui/Panel'
 import { EmptyState, ErrorState, Skeleton } from '../../components/ui/States'
@@ -16,29 +15,29 @@ function EstadoHoy({ r }: { r: Resumen }) {
     {
       label: 'Accesos registrados',
       value: r.ultimas24h.accesos,
-      nota: 'Aperturas por tarjeta, código, QR, rostro o app',
+      nota: 'Tarjeta, código, QR, rostro o app',
       tone: 'text-text-primary',
     },
     {
       label: 'Intentos de intrusión',
       value: r.ultimas24h.intrusos,
-      nota: r.ultimas24h.intrusos ? 'Revisa la actividad de las puertas afectadas' : 'Sin intentos detectados',
+      nota: r.ultimas24h.intrusos ? 'Revisa las puertas afectadas' : 'Sin intentos detectados',
       tone: r.ultimas24h.intrusos ? 'text-error' : 'text-success',
     },
     {
       label: 'Alertas acumuladas',
       value: r.alertasActivas,
-      nota: 'Eventos de nivel advertencia o crítico',
+      nota: 'Advertencia o crítico',
       tone: r.alertasActivas ? 'text-warning' : 'text-text-primary',
     },
   ]
   return (
-    <Panel className="grid divide-y divide-divider/60 sm:grid-cols-3 sm:divide-x sm:divide-y-0">
+    <Panel className="grid divide-y divide-divider sm:grid-cols-3 sm:divide-x sm:divide-y-0">
       {items.map((it) => (
-        <div key={it.label} className="px-5 py-5">
-          <p className="text-sm text-text-muted">{it.label}</p>
-          <p className={cn('mt-1 font-mono text-3xl font-medium tabular', it.tone)}>{formatNumber(it.value)}</p>
-          <p className="mt-1 text-xs text-text-disabled">{it.nota}</p>
+        <div key={it.label} className="px-4 py-4">
+          <p className="rotulo">{it.label}</p>
+          <p className={cn('mt-2 font-mono text-[1.75rem] leading-none font-medium tabular', it.tone)}>{formatNumber(it.value)}</p>
+          <p className="mt-2 text-xs text-text-disabled">{it.nota}</p>
         </div>
       ))}
     </Panel>
@@ -58,10 +57,10 @@ function Composicion({
   return (
     <div>
       <div className="flex items-baseline justify-between">
-        <h3 className="text-sm font-medium text-text-secondary">{titulo}</h3>
+        <h3 className="text-[0.8125rem] font-medium text-text-secondary">{titulo}</h3>
         <span className="font-mono text-sm text-text-primary tabular">{formatNumber(total)}</span>
       </div>
-      <div className="mt-2.5 flex h-2 overflow-hidden rounded-full bg-background" role="img" aria-label={`${titulo}: ${partes.map((p) => `${p.label} ${p.value}`).join(', ')}`}>
+      <div className="mt-2 flex h-1.5 gap-px overflow-hidden bg-background" role="img" aria-label={`${titulo}: ${partes.map((p) => `${p.label} ${p.value}`).join(', ')}`}>
         {total > 0 &&
           partes.map((p) => (
             <span key={p.label} className={p.color} style={{ width: `${(p.value / total) * 100}%` }} />
@@ -70,7 +69,7 @@ function Composicion({
       <ul className="mt-2.5 flex flex-wrap gap-x-4 gap-y-1">
         {partes.map((p) => (
           <li key={p.label} className="flex items-center gap-1.5 text-xs text-text-muted">
-            <span className={cn('size-2 rounded-full', p.color)} aria-hidden />
+            <span className={cn('size-1.5', p.color)} aria-hidden />
             {p.label}
             <span className="font-mono text-text-secondary tabular">{formatNumber(p.value)}</span>
           </li>
@@ -86,7 +85,7 @@ function Parque({ r }: { r: Resumen }) {
   return (
     <Panel>
       <PanelHeader title="Parque instalado" description="Qué hay en operación ahora mismo." />
-      <div className="flex flex-col gap-6 px-5 pb-5">
+      <div className="flex flex-col gap-5 p-4">
         <Composicion
           titulo="Domicilios"
           total={r.domicilios.total}
@@ -142,13 +141,12 @@ function ResumenSkeleton() {
 }
 
 export function DashboardPage() {
-  const user = useCurrentUser()
   const resumen = useResumen()
   const eventos = useEventos(20)
 
   return (
     <>
-      <PageHeader title={`Hola, ${user.username}`} description="Estado general de CYPHERLOCK en las últimas 24 horas." />
+      <PageHeader title="Resumen" description="Accesos, intrusiones y alertas de las últimas 24 horas." />
       {resumen.isPending ? (
         <ResumenSkeleton />
       ) : resumen.isError ? (
@@ -156,21 +154,21 @@ export function DashboardPage() {
           <ErrorState error={resumen.error} onRetry={() => resumen.refetch()} />
         </Panel>
       ) : (
-        <div className="flex flex-col gap-6">
+        <div className="flex flex-col gap-5">
           <EstadoHoy r={resumen.data} />
-          <div className="grid items-start gap-6 xl:grid-cols-[1.6fr_1fr]">
+          <div className="grid items-start gap-5 xl:grid-cols-[minmax(0,1.7fr)_minmax(0,1fr)]">
             <Panel>
               <PanelHeader
                 title="Actividad reciente"
                 description="Se actualiza sola cuando el canal en vivo está conectado."
                 actions={
-                  <Link to="/actividad" className="inline-flex items-center gap-1 text-sm text-primary-light hover:underline">
+                  <Link to="/actividad" className="inline-flex items-center gap-1 text-[0.8125rem] text-text-muted hover:text-primary-light">
                     Ver todo <ArrowRight className="size-3.5" aria-hidden />
                   </Link>
                 }
               />
               {eventos.isPending ? (
-                <div className="flex flex-col gap-4 px-5 pb-5">
+                <div className="flex flex-col gap-3 p-4">
                   {Array.from({ length: 5 }, (_, i) => <Skeleton key={i} className="h-12" />)}
                 </div>
               ) : eventos.isError ? (

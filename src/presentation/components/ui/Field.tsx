@@ -2,10 +2,10 @@ import { forwardRef, useId, type InputHTMLAttributes, type ReactNode, type Selec
 import { cn } from '@/core/utils/cn'
 
 const control =
-  'w-full h-10 rounded-[var(--radius-control)] bg-background border border-divider px-3 text-sm text-text-primary ' +
-  'placeholder:text-text-disabled transition-[border-color,box-shadow] duration-150 ' +
-  'hover:border-surface-light focus:outline-none focus:border-primary focus:ring-3 focus:ring-primary/20 ' +
-  'disabled:opacity-50 disabled:cursor-not-allowed aria-invalid:border-error aria-invalid:ring-error/20'
+  'w-full h-9 rounded-[var(--radius-control)] bg-background border border-divider px-3 text-sm text-text-primary ' +
+  'placeholder:text-text-disabled transition-colors duration-100 ' +
+  'hover:border-text-disabled focus:outline-none focus:border-primary ' +
+  'disabled:opacity-50 disabled:cursor-not-allowed aria-invalid:border-error'
 
 interface FieldShellProps {
   label: string
@@ -19,7 +19,7 @@ function FieldShell({ label, hint, error, children }: FieldShellProps) {
   const msgId = `${id}-msg`
   return (
     <div className="flex flex-col gap-1.5">
-      <label htmlFor={id} className="text-sm font-medium text-text-secondary">
+      <label htmlFor={id} className="text-[0.8125rem] font-medium text-text-secondary">
         {label}
       </label>
       {children({ id, describedBy: error || hint ? msgId : undefined })}
@@ -92,8 +92,9 @@ export function MiniSelect({
   return (
     <select
       className={cn(
-        'h-8 cursor-pointer rounded-lg border border-divider bg-background px-2 text-sm text-text-secondary',
-        'hover:border-surface-light focus:border-primary focus:outline-none disabled:opacity-50',
+        // Discreto en tablas: se lee como texto hasta que se pasa el cursor.
+        '-mx-1.5 h-7 cursor-pointer rounded-[var(--radius-control)] border border-transparent bg-transparent px-1.5 text-sm text-text-secondary',
+        'hover:border-divider hover:bg-background focus:border-primary focus:bg-background focus:outline-none disabled:opacity-50',
         className,
       )}
       {...rest}

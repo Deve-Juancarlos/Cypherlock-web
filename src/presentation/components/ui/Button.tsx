@@ -6,17 +6,15 @@ type Variant = 'primary' | 'secondary' | 'ghost' | 'danger'
 type Size = 'sm' | 'md'
 
 const variants: Record<Variant, string> = {
-  primary:
-    'bg-primary text-background font-semibold hover:bg-primary-light active:bg-primary-dark shadow-[0_1px_2px_rgb(2_6_23/0.5)]',
-  secondary:
-    'bg-surface text-text-primary border border-divider hover:bg-surface-light/70 hover:border-surface-light',
-  ghost: 'text-text-secondary hover:bg-surface hover:text-text-primary',
-  danger: 'bg-error/10 text-error border border-error/40 hover:bg-error hover:text-text-primary hover:border-error',
+  primary: 'bg-primary text-[#041014] font-medium hover:bg-primary-light active:bg-primary-dark',
+  secondary: 'border border-divider text-text-primary hover:border-text-disabled hover:bg-surface-light',
+  ghost: 'text-text-muted hover:bg-surface-light hover:text-text-primary',
+  danger: 'border border-error/50 text-error hover:bg-error hover:border-error hover:text-white',
 }
 
 const sizes: Record<Size, string> = {
-  sm: 'h-8 px-3 text-sm gap-1.5',
-  md: 'h-10 px-4 text-sm gap-2',
+  sm: 'h-7 px-2.5 text-[0.8125rem] gap-1.5',
+  md: 'h-9 px-3.5 text-sm gap-2',
 }
 
 export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
@@ -38,8 +36,8 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(function Button
       aria-busy={loading || undefined}
       className={cn(
         'inline-flex cursor-pointer select-none items-center justify-center whitespace-nowrap rounded-[var(--radius-control)]',
-        'transition-[background-color,border-color,color,transform] duration-150 ease-out active:translate-y-px',
-        'disabled:cursor-not-allowed disabled:opacity-50 disabled:active:translate-y-0',
+        'transition-[background-color,border-color,color] duration-100 ease-out',
+        'disabled:cursor-not-allowed disabled:opacity-50',
         variants[variant],
         sizes[size],
         className,

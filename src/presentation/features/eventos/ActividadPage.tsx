@@ -32,7 +32,7 @@ export function ActividadPage() {
     <>
       <PageHeader title="Actividad" description="Accesos, alertas y cambios de todas las casas, en orden cronológico." />
       <Panel>
-        <div className="flex flex-wrap items-center justify-between gap-3 border-b border-divider/60 px-5 py-4">
+        <div className="flex flex-wrap items-center justify-between gap-3 border-b border-divider px-4 pt-1">
           <Segmented
             label="Filtrar por nivel"
             value={nivel}

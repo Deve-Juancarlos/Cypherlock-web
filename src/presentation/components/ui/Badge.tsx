@@ -3,17 +3,17 @@ import { cn } from '@/core/utils/cn'
 
 export type Tone = 'neutral' | 'primary' | 'success' | 'warning' | 'error' | 'info'
 
-const tones: Record<Tone, string> = {
-  neutral: 'bg-surface-light/60 text-text-secondary',
-  primary: 'bg-primary/15 text-primary-light',
-  success: 'bg-success/15 text-success',
-  warning: 'bg-warning/15 text-warning',
-  error: 'bg-error/15 text-error',
-  info: 'bg-info/15 text-info',
+const texto: Record<Tone, string> = {
+  neutral: 'text-text-muted',
+  primary: 'text-primary-light',
+  success: 'text-success',
+  warning: 'text-warning',
+  error: 'text-error',
+  info: 'text-info',
 }
 
-const dots: Record<Tone, string> = {
-  neutral: 'bg-text-muted',
+const marca: Record<Tone, string> = {
+  neutral: 'bg-text-disabled',
   primary: 'bg-primary-light',
   success: 'bg-success',
   warning: 'bg-warning',
@@ -21,6 +21,10 @@ const dots: Record<Tone, string> = {
   info: 'bg-info',
 }
 
+/**
+ * Estado como texto con indicador cuadrado (`dot`) o como etiqueta con borde
+ * fino. Sin pildoras rellenas: en una tabla densa el color va en el texto.
+ */
 export function Badge({ tone = 'neutral', dot, children, className }: {
   tone?: Tone
   dot?: boolean
@@ -30,12 +34,13 @@ export function Badge({ tone = 'neutral', dot, children, className }: {
   return (
     <span
       className={cn(
-        'inline-flex items-center gap-1.5 whitespace-nowrap rounded-full px-2 py-0.5 text-xs font-medium',
-        tones[tone],
+        'inline-flex items-center gap-1.5 whitespace-nowrap text-xs font-medium',
+        texto[tone],
+        !dot && 'rounded-[3px] border border-current/35 px-1.5 py-px',
         className,
       )}
     >
-      {dot && <span className={cn('size-1.5 rounded-full', dots[tone])} aria-hidden />}
+      {dot && <span className={cn('size-1.5 shrink-0', marca[tone])} aria-hidden />}
       {children}
     </span>
   )

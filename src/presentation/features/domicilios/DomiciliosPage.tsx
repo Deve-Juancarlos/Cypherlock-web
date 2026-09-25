@@ -31,7 +31,7 @@ function CopyField({ label, value }: { label: string; value: string }) {
   return (
     <div>
       <p className="mb-1.5 text-xs font-medium text-text-muted">{label}</p>
-      <div className="flex items-center gap-2 rounded-lg border border-divider bg-background p-2 pl-3">
+      <div className="flex items-center gap-2 rounded-[var(--radius-control)] border border-divider bg-background p-2 pl-3">
         <code className="min-w-0 flex-1 break-all font-mono text-xs text-text-primary">{value}</code>
         <Button
           size="sm"
@@ -96,7 +96,7 @@ function Dispositivos({ domicilio }: { domicilio: Domicilio }) {
       </div>
 
       {creds && (
-        <div role="alert" className="mb-4 rounded-xl border border-warning/50 bg-warning/10 p-4">
+        <div role="alert" className="mb-4 rounded-[var(--radius-card)] border border-warning/50 bg-warning/10 p-4">
           <div className="flex items-start gap-3">
             <TriangleAlert className="mt-0.5 size-4 shrink-0 text-warning" aria-hidden />
             <div className="min-w-0 flex-1">
@@ -117,7 +117,7 @@ function Dispositivos({ domicilio }: { domicilio: Domicilio }) {
       )}
 
       {abierto && (
-        <form onSubmit={submit} noValidate className="mb-4 flex flex-col gap-3 rounded-xl border border-divider bg-background/60 p-4">
+        <form onSubmit={submit} noValidate className="mb-4 flex flex-col gap-3 rounded-[var(--radius-card)] border border-divider bg-background/60 p-4">
           <InputField label="Nombre" placeholder="Puerta principal" value={form.nombre} onChange={(e) => setForm({ ...form, nombre: e.target.value })} error={errors.nombre} />
           <div className="grid grid-cols-[1fr_7rem] gap-3">
             <InputField label="IP en la red de la casa" placeholder="192.168.1.50" inputMode="decimal" value={form.ip} onChange={(e) => setForm({ ...form, ip: e.target.value })} error={errors.ip} />
@@ -135,11 +135,11 @@ function Dispositivos({ domicilio }: { domicilio: Domicilio }) {
       ) : lista.isError ? (
         <ErrorState error={lista.error} onRetry={() => lista.refetch()} />
       ) : lista.data.length === 0 ? (
-        <p className="rounded-xl border border-dashed border-divider px-4 py-6 text-center text-sm text-text-muted">
+        <p className="rounded-[var(--radius-card)] border border-dashed border-divider px-4 py-6 text-center text-sm text-text-muted">
           Esta casa aún no tiene dispositivo. Sin uno, la puerta no puede abrirse desde la app ni con códigos.
         </p>
       ) : (
-        <ul className="divide-y divide-divider/60 rounded-xl border border-divider">
+        <ul className="divide-y divide-divider/60 rounded-[var(--radius-card)] border border-divider">
           {lista.data.map((d) => (
             <li key={d.uuid} className="flex flex-wrap items-center gap-3 px-4 py-3">
               <Cpu className="size-4 text-text-muted" aria-hidden />
@@ -360,7 +360,7 @@ export function DomiciliosPage() {
         actions={<Button variant="primary" onClick={() => setNuevo(true)} icon={<Plus className="size-4" aria-hidden />}>Nuevo domicilio</Button>}
       />
       <Panel>
-        <div className="flex flex-wrap items-center justify-between gap-3 border-b border-divider/60 px-5 py-4">
+        <div className="flex flex-wrap items-center justify-between gap-3 border-b border-divider px-4 pt-1">
           <Segmented
             label="Filtrar domicilios"
             value={filtro}

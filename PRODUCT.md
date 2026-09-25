@@ -22,9 +22,9 @@ Aplicación de producto → **Operate**. Densidad y consistencia antes que expre
 
 ## Marca
 Emblema: escudo con "B" y candado, trazas de circuito cian sobre metal oscuro.
-Paleta fija (la misma de la app Flutter `AppColors`): slate 900/800/700 + cyan 500/400/600,
+Neutros grafito (sin tinte azul) + el cian de `AppColors` (Flutter) solo para accion, foco y seleccion;
 semánticos red/green/amber/blue. Tema oscuro por el entorno de uso, no por categoría.
-Tipografía: Fira Sans (interfaz), Fira Code solo para datos (UIDs, códigos, cifras).
+Tipografía: IBM Plex Sans (interfaz), IBM Plex Mono para datos (UIDs, códigos, horas, cifras). Superficies planas con borde fino, sin sombras, halos ni degradados.
 
 ## Restricciones
 - Nunca mostrar secretos más de una vez; nunca incluirlos en el bundle.

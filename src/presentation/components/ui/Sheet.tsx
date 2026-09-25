@@ -54,7 +54,7 @@ export function Sheet({
       {open && (
         <div className="fixed inset-0 z-50" role="presentation">
           <motion.div
-            className="absolute inset-0 bg-[rgb(2_6_23/0.6)] backdrop-blur-[2px]"
+            className="absolute inset-0 bg-black/60"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}

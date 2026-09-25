@@ -62,7 +62,7 @@ export function ToastProvider({ children }: { children: ReactNode }) {
               exit={{ opacity: 0, x: 24 }}
               transition={{ duration: 0.22, ease: [0.16, 1, 0.3, 1] }}
               className={cn(
-                'pointer-events-auto flex items-start gap-3 rounded-xl border bg-surface p-4 shadow-[var(--shadow-pop)]',
+                'pointer-events-auto flex items-start gap-3 rounded-[var(--radius-card)] border bg-surface p-4 shadow-[var(--shadow-pop)]',
                 t.kind === 'success' ? 'border-success/40' : 'border-error/40',
               )}
               role={t.kind === 'error' ? 'alert' : 'status'}

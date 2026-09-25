@@ -1,13 +1,11 @@
 import { useState, type FormEvent } from 'react'
 import { Navigate } from 'react-router-dom'
-import { motion } from 'motion/react'
-import { LockKeyhole, TriangleAlert } from 'lucide-react'
+import { TriangleAlert } from 'lucide-react'
 import { z } from 'zod'
 import { toAppError } from '@/core/errors/AppError'
 import { useSession } from '../../app/providers'
 import { Button } from '../../components/ui/Button'
 import { InputField } from '../../components/ui/Field'
-import { CircuitCanvas } from './CircuitCanvas'
 
 const LoginSchema = z.object({
   username: z.string().trim().min(3, 'Ingresa tu usuario (mínimo 3 caracteres).'),
@@ -53,40 +51,22 @@ export function LoginPage() {
   }
 
   return (
-    <div className="grid min-h-dvh lg:grid-cols-[1.1fr_1fr]">
-      {/* Escena de marca */}
-      <div className="relative hidden overflow-hidden border-r border-divider/60 bg-rail lg:block">
-        <CircuitCanvas />
-        <div className="pointer-events-none absolute inset-0 grid place-items-center">
-          <motion.img
-            src="/brand/emblema-256.png"
-            alt=""
-            width={184}
-            height={158}
-            className="w-46 drop-shadow-[0_18px_40px_rgb(2_6_23/0.8)]"
-            initial={{ opacity: 0, scale: 0.94, filter: 'blur(6px)' }}
-            animate={{ opacity: 1, scale: 1, filter: 'blur(0px)' }}
-            transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
-          />
+    <div className="flex min-h-dvh flex-col">
+      <header className="flex h-12 items-center justify-between border-b border-divider px-5 sm:px-8">
+        <div className="flex items-center gap-2.5">
+          <img src="/brand/emblema-96.png" alt="" className="size-6" width={24} height={24} />
+          <span className="text-[0.8125rem] font-semibold tracking-[0.12em]">CYPHERLOCK</span>
         </div>
-        <p className="absolute bottom-8 left-10 max-w-sm text-sm text-text-muted">
-          Control de acceso para cada puerta instalada: domicilios, dispositivos, cuentas y actividad en un solo lugar.
-        </p>
-      </div>
+        <span className="rotulo hidden sm:inline">Panel de administración</span>
+      </header>
 
-      {/* Formulario */}
-      <div className="flex items-center justify-center px-6 py-12">
-        <div className="w-full max-w-sm">
-          <div className="mb-8 flex items-center gap-3 lg:hidden">
-            <img src="/brand/emblema-96.png" alt="" className="size-10" width={40} height={40} />
-            <span className="text-sm font-bold tracking-[0.18em]">CYPHERLOCK</span>
-          </div>
-
-          <h1 className="text-2xl font-semibold tracking-[-0.01em] text-text-primary">Ingresar al panel</h1>
-          <p className="mt-1.5 text-sm text-text-muted">Acceso exclusivo para cuentas de administración.</p>
+      <main className="flex flex-1 items-start justify-center px-5 pt-[14vh] pb-16">
+        <div className="w-full max-w-[22rem]">
+          <h1 className="text-xl font-semibold tracking-[-0.01em] text-text-primary">Ingresar</h1>
+          <p className="mt-1 text-[0.8125rem] text-text-muted">Solo cuentas con rol de administrador.</p>
 
           {(expired || formError) && (
-            <div role="alert" className="mt-6 flex items-start gap-3 rounded-xl border border-error/40 bg-error/10 p-3.5 text-sm">
+            <div role="alert" className="mt-5 flex items-start gap-2.5 border-l-2 border-error bg-error/8 px-3 py-2.5 text-[0.8125rem]">
               <TriangleAlert className="mt-0.5 size-4 shrink-0 text-error" aria-hidden />
               <p className="text-text-secondary">{formError ?? 'Tu sesión expiró. Vuelve a ingresar.'}</p>
             </div>
@@ -98,6 +78,7 @@ export function LoginPage() {
               name="username"
               autoComplete="username"
               autoFocus
+              spellCheck={false}
               value={form.username}
               error={errors.username}
               onChange={(e) => setForm({ ...form, username: e.target.value })}
@@ -111,16 +92,16 @@ export function LoginPage() {
               error={errors.password}
               onChange={(e) => setForm({ ...form, password: e.target.value })}
             />
-            <Button type="submit" variant="primary" className="mt-2 w-full" loading={sending} icon={<LockKeyhole className="size-4" aria-hidden />}>
+            <Button type="submit" variant="primary" className="mt-1 w-full" loading={sending}>
               {sending ? 'Verificando…' : 'Ingresar'}
             </Button>
           </form>
 
-          <p className="mt-8 text-xs text-text-disabled">
-            Tras 5 intentos fallidos la cuenta se bloquea 15 minutos.
+          <p className="mt-6 border-t border-divider pt-4 text-xs text-text-disabled">
+            Tras 5 intentos fallidos la cuenta se bloquea 15 minutos. Operadores, propietarios y residentes usan la app móvil.
           </p>
         </div>
-      </div>
+      </main>
     </div>
   )
 }

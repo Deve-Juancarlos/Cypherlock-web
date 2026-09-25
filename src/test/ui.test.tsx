@@ -4,7 +4,6 @@ import { MemoryRouter } from 'react-router-dom'
 import { AppError } from '@/core/errors/AppError'
 import type { Repositories } from '@/domain/repositories'
 import { AppProviders } from '@/presentation/app/providers'
-import { buildTraces, seek } from '@/presentation/features/auth/CircuitCanvas'
 import { LoginPage } from '@/presentation/features/auth/LoginPage'
 
 function fakeRepos(login: Repositories['auth']['login']): Repositories {
@@ -61,29 +60,5 @@ describe('LoginPage', () => {
     fireEvent.change(screen.getByLabelText('Contraseña'), { target: { value: 'mala' } })
     fireEvent.click(screen.getByRole('button', { name: /ingresar/i }))
     await waitFor(() => expect(screen.getByRole('alert')).toHaveTextContent('Usuario o contraseña incorrectos.'))
-  })
-})
-
-describe('CircuitCanvas (tecnica riso: cuadro = funcion pura del tiempo)', () => {
-  function grabar(t: number) {
-    const ops: string[] = []
-    const ctx = new Proxy({} as CanvasRenderingContext2D, {
-      get: (_o, prop: string) =>
-        prop === 'createRadialGradient'
-          ? (...a: number[]) => ({ addColorStop: (...s: unknown[]) => ops.push(`stop:${a.join(',')}:${s.join(',')}`) })
-          : (...args: unknown[]) => ops.push(`${prop}(${args.map((x) => (typeof x === 'number' ? x.toFixed(3) : x)).join(',')})`),
-      set: (_o, prop: string, v) => (ops.push(`${prop}=${v}`), true),
-    })
-    seek(ctx, 800, 600, buildTraces(800, 600), t)
-    return ops
-  }
-
-  it('mismo t -> mismo cuadro; t distinto -> cuadro distinto', () => {
-    expect(grabar(2.5)).toEqual(grabar(2.5))
-    expect(grabar(2.5)).not.toEqual(grabar(3.1))
-  })
-
-  it('el circuito es determinista (misma semilla)', () => {
-    expect(buildTraces(800, 600)).toEqual(buildTraces(800, 600))
   })
 })
