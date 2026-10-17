@@ -16,9 +16,10 @@ const FORMAS = [
     dato: 'Cámara en la puerta',
   },
   {
-    titulo: 'Código QR para visitas',
-    texto: 'Generas un código para quien viene a verte y se lo mandas por mensaje. Sirve una sola vez y vence.',
-    dato: 'Un solo uso',
+    titulo: 'Pase para visitas',
+    texto:
+      'Desde la app le mandas un enlace o un QR a quien viene a verte. Abre su código de 6 dígitos y lo marca en el teclado de la puerta. Sirve para un solo ingreso y lo puedes desactivar cuando quieras.',
+    dato: 'Un solo ingreso',
   },
   {
     titulo: 'Código numérico temporal',
