@@ -95,6 +95,10 @@ export interface SolicitudPublicaBody {
   departamento: string
   tipo_inmueble: 'CASA' | 'EDIFICIO' | 'ALQUILER'
   notas: string
+  latitud?: number
+  longitud?: number
+  /** Preferencia (no cita): el operador confirma por telefono. */
+  preferencia_visita?: { dias: string[]; franja: 'MANANA' | 'TARDE' | 'CUALQUIERA' }
 }
 
 export const solicitudPublicaRemote = {

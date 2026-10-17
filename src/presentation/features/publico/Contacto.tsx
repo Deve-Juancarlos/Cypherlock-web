@@ -49,7 +49,7 @@ export function Contacto() {
         </Aparece>
         <Aparece delay={0.1}>
           <div className="rounded-[var(--radius-card)] border border-linea bg-superficie p-6 sm:p-8">
-            <p className="mb-6 text-sm text-texto-2">Te llamamos nosotros</p>
+            <p className="mb-6 font-display text-[1.35rem] text-texto">Solicita tu instalación</p>
             <Formulario />
           </div>
         </Aparece>

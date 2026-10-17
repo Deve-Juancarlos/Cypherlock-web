@@ -1,77 +1,70 @@
-/** "Te llamamos": crea una solicitud PENDIENTE en POST /solicitudes/publica. */
-import { useState, type FormEvent, type ReactNode } from 'react'
-import { ArrowUpRight, Check } from 'lucide-react'
-import { z } from 'zod'
+/**
+ * Solicitud de instalacion en 3 pasos: datos -> ubicacion -> preferencia.
+ * Crea una solicitud PENDIENTE en POST /solicitudes/publica; el operador la ve
+ * al instante y llama para confirmar la cita.
+ */
+import { useEffect, useRef, useState, type FormEvent } from 'react'
+import { ArrowLeft, ArrowRight, Check } from 'lucide-react'
 import { toAppError } from '@/core/errors/AppError'
 import { cn } from '@/core/utils/cn'
 import { solicitudPublicaRemote } from '@/data/datasources/remote'
+import {
+  aBody, erroresDe, FRANJAS, PASO_DATOS, PASO_PREFERENCIA, PASO_UBICACION, VACIO, type Datos, type Errores,
+} from './solicitud/modelo'
+import { PasoDatos, PasoPreferencia } from './solicitud/Pasos'
+import { PasoUbicacion } from './solicitud/PasoUbicacion'
 
-const Esquema = z.object({
-  cliente_nombre: z.string().trim().min(2, 'Escribe tu nombre.').max(120),
-  cliente_telefono: z
-    .string()
-    .trim()
-    .regex(/^(\+?51)?\s?9\d{2}\s?\d{3}\s?\d{3}$/, 'Escribe un celular de 9 dígitos, por ejemplo 987 654 321.'),
-  distrito: z.string().trim().min(2, 'Indica tu distrito o ciudad.').max(80),
-  direccion: z.string().trim().min(4, 'Escribe una dirección o referencia.').max(200),
-  tipo_inmueble: z.enum(['CASA', 'EDIFICIO', 'ALQUILER']),
-  notas: z.string().trim().max(400),
-})
-type Datos = z.infer<typeof Esquema>
-type Campo = keyof Datos
-
-const VACIO: Datos = { cliente_nombre: '', cliente_telefono: '', distrito: '', direccion: '', tipo_inmueble: 'CASA', notas: '' }
-
-const control =
-  'mt-1.5 w-full rounded-[var(--radius-control)] border border-linea bg-noche px-3.5 py-2.5 text-[0.9375rem] text-texto ' +
-  'placeholder:text-texto-3 transition-colors hover:border-texto-3 focus:border-senal focus:outline-none aria-invalid:border-error'
-
-function Etiqueta({ texto, error, className, children }: { texto: string; error?: string; className?: string; children: ReactNode }) {
-  return (
-    <label className={cn('block', className)}>
-      <span className="text-[0.8125rem] font-medium text-texto-2">{texto}</span>
-      {children}
-      {error && <span className="mt-1 block text-xs text-error">{error}</span>}
-    </label>
-  )
-}
+const PASOS = [
+  { titulo: 'Tus datos', esquema: PASO_DATOS },
+  { titulo: 'Ubicación', esquema: PASO_UBICACION },
+  { titulo: 'Preferencia de visita', esquema: PASO_PREFERENCIA },
+] as const
 
 function mensajeError(err: unknown): string {
   const e = toAppError(err)
   if (e.code === 'RATE_LIMITED' || e.status === 429)
     return 'Recibimos varias solicitudes desde tu conexión. Espera unos minutos o escríbenos por WhatsApp.'
-  if (e.status === 422) return 'Revisa los datos del formulario.'
+  if (e.status === 422) return 'Revisa los datos: alguno no es válido.'
   return 'No pudimos enviar tu solicitud. Inténtalo de nuevo o escríbenos por WhatsApp.'
 }
 
+const botonPrimario =
+  'inline-flex h-12 cursor-pointer items-center gap-2 rounded-full bg-cobre px-7 text-[0.9375rem] font-medium text-on-cobre ' +
+  'transition-colors hover:bg-cobre-claro disabled:cursor-wait disabled:opacity-70'
+
 export function Formulario() {
+  const [paso, setPaso] = useState(0)
   const [datos, setDatos] = useState<Datos>(VACIO)
-  const [trampa, setTrampa] = useState('')
-  const [errores, setErrores] = useState<Partial<Record<Campo, string>>>({})
+  const [errores, setErrores] = useState<Errores>({})
   const [estado, setEstado] = useState<'editando' | 'enviando' | 'enviado'>('editando')
   const [falla, setFalla] = useState<string | null>(null)
+  const [trampa, setTrampa] = useState('')
+  const titulo = useRef<HTMLHeadingElement>(null)
+  const primerRender = useRef(true)
 
-  const campo = (k: Campo) => ({
-    value: datos[k],
-    'aria-invalid': errores[k] ? true : undefined,
-    onChange: (e: { target: { value: string } }) => setDatos((d) => ({ ...d, [k]: e.target.value })),
-  })
+  // Al cambiar de paso, el foco va al titulo (teclado y lectores de pantalla).
+  useEffect(() => {
+    if (primerRender.current) {
+      primerRender.current = false
+      return
+    }
+    titulo.current?.focus()
+  }, [paso])
+
+  const cambiar = <K extends keyof Datos>(k: K, v: Datos[K]) => setDatos((d) => ({ ...d, [k]: v }))
 
   const enviar = async (e: FormEvent) => {
     e.preventDefault()
     setFalla(null)
-    const r = Esquema.safeParse(datos)
-    if (!r.success) {
-      const f = r.error.flatten().fieldErrors
-      setErrores(Object.fromEntries(Object.entries(f).map(([k, v]) => [k, v?.[0]])))
-      return
-    }
-    setErrores({})
+    const errs = erroresDe(PASOS[paso].esquema.safeParse(datos))
+    setErrores(errs)
+    if (Object.keys(errs).length) return
+    if (paso < PASOS.length - 1) return setPaso(paso + 1)
     // Campo trampa: invisible para personas; los bots lo llenan y no se envia nada.
     if (trampa) return setEstado('enviado')
     setEstado('enviando')
     try {
-      await solicitudPublicaRemote.crear({ ...r.data, departamento: '' })
+      await solicitudPublicaRemote.crear(aBody(datos))
       setEstado('enviado')
     } catch (err) {
       setFalla(mensajeError(err))
@@ -81,57 +74,55 @@ export function Formulario() {
 
   if (estado === 'enviado') {
     const nombre = datos.cliente_nombre.trim().split(/\s+/)[0]
+    const franja = FRANJAS.find((f) => f.id === datos.franja)?.texto.toLowerCase()
     return (
       <div role="status" className="py-6">
         <Check className="size-6 text-senal" aria-hidden />
         <p className="mt-4 font-display text-[1.6rem] leading-tight text-texto">Listo{nombre ? `, ${nombre}` : ''}.</p>
         <p className="mt-2 leading-relaxed text-texto-2">
-          Recibimos tus datos. Te llamaremos al <span className="font-mono">{datos.cliente_telefono.trim()}</span>.
+          Recibimos tu solicitud. Te llamaremos al <span className="font-mono">{datos.cliente_telefono.trim()}</span> para
+          confirmar la visita{franja && franja !== 'cualquiera' ? ` (preferencia: ${franja})` : ''}.
         </p>
       </div>
     )
   }
 
+  const ultimo = paso === PASOS.length - 1
   return (
-    <form onSubmit={enviar} noValidate className="grid gap-5 sm:grid-cols-2">
-      <Etiqueta texto="Nombre" error={errores.cliente_nombre} className="sm:col-span-2">
-        <input className={control} autoComplete="name" {...campo('cliente_nombre')} />
-      </Etiqueta>
-      <Etiqueta texto="Celular" error={errores.cliente_telefono}>
-        <input className={control} type="tel" inputMode="tel" autoComplete="tel" placeholder="987 654 321" {...campo('cliente_telefono')} />
-      </Etiqueta>
-      <Etiqueta texto="Distrito o ciudad" error={errores.distrito}>
-        <input className={control} autoComplete="address-level2" {...campo('distrito')} />
-      </Etiqueta>
-      <Etiqueta texto="Dirección o referencia" error={errores.direccion} className="sm:col-span-2">
-        <input className={control} autoComplete="street-address" {...campo('direccion')} />
-      </Etiqueta>
-      <Etiqueta texto="Tipo de inmueble">
-        <select className={control} {...campo('tipo_inmueble')}>
-          <option value="CASA">Casa</option>
-          <option value="EDIFICIO">Edificio</option>
-          <option value="ALQUILER">Alquiler</option>
-        </select>
-      </Etiqueta>
+    <form onSubmit={enviar} noValidate>
+      <ol className="mb-6 grid grid-cols-3 gap-2" aria-label="Progreso">
+        {PASOS.map((p, i) => (
+          <li key={p.titulo} aria-current={i === paso ? 'step' : undefined}>
+            <span className={cn('block h-1 rounded-full', i <= paso ? 'bg-cobre' : 'bg-linea')} />
+            <span className={cn('mt-2 block text-xs', i === paso ? 'text-texto' : 'text-texto-3')}>
+              {i + 1}. {p.titulo}
+            </span>
+          </li>
+        ))}
+      </ol>
+      <h3 ref={titulo} tabIndex={-1} className="mb-5 scroll-mt-24 text-lg font-medium text-texto outline-none">
+        {PASOS[paso].titulo}
+      </h3>
+
+      {paso === 0 && <PasoDatos datos={datos} errores={errores} cambiar={cambiar} />}
+      {paso === 1 && <PasoUbicacion datos={datos} errores={errores} cambiar={cambiar} />}
+      {paso === 2 && <PasoPreferencia datos={datos} errores={errores} cambiar={cambiar} />}
+
       <div className="hidden" aria-hidden>
         <input tabIndex={-1} autoComplete="off" name="sitio_web" value={trampa} onChange={(e) => setTrampa(e.target.value)} />
       </div>
-      <Etiqueta texto="Comentario (opcional)" className="sm:col-span-2">
-        <textarea className={cn(control, 'min-h-24 resize-y')} placeholder="Cuántas puertas, a qué hora llamarte…" {...campo('notas')} />
-      </Etiqueta>
-      {falla && (
-        <p role="alert" className="text-sm text-error sm:col-span-2">
-          {falla}
-        </p>
-      )}
-      <div className="sm:col-span-2">
-        <button
-          type="submit"
-          disabled={estado === 'enviando'}
-          className="inline-flex h-12 cursor-pointer items-center gap-2 rounded-full bg-cobre px-7 text-[0.9375rem] font-medium text-on-cobre transition-colors hover:bg-cobre-claro disabled:cursor-wait disabled:opacity-70"
-        >
-          {estado === 'enviando' ? 'Enviando…' : 'Quiero que me llamen'}
-          <ArrowUpRight className="size-4" aria-hidden />
+      {falla && <p role="alert" className="mt-5 text-sm text-error">{falla}</p>}
+
+      <div className="mt-7 flex items-center justify-between gap-3">
+        {paso > 0 ? (
+          <button type="button" onClick={() => { setErrores({}); setPaso(paso - 1) }}
+            className="inline-flex cursor-pointer items-center gap-1.5 text-sm text-texto-2 hover:text-texto">
+            <ArrowLeft className="size-4" aria-hidden /> Atrás
+          </button>
+        ) : <span />}
+        <button type="submit" disabled={estado === 'enviando'} className={botonPrimario}>
+          {estado === 'enviando' ? 'Enviando…' : ultimo ? 'Enviar solicitud' : 'Continuar'}
+          <ArrowRight className="size-4" aria-hidden />
         </button>
       </div>
     </form>

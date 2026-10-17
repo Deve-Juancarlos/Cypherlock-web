@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react'
 import { ClipboardList, Star } from 'lucide-react'
-import { formatDateTime, formatFechaCorta, formatNumber } from '@/core/utils/format'
+import { formatNumber } from '@/core/utils/format'
 import { TRANSICIONES, type EstadoSolicitud, type Solicitud } from '@/domain/models'
 import { PageHeader } from '../../components/layout/AppShell'
 import { Badge, type Tone } from '../../components/ui/Badge'
@@ -18,6 +18,7 @@ import {
   useSolicitudes,
   useUsuarios,
 } from '../../hooks/queries'
+import { CitaSolicitud } from './CitaSolicitud'
 
 const ESTADOS: EstadoSolicitud[] = ['PENDIENTE', 'ASIGNADO', 'CONFIRMADO', 'EN_CURSO', 'COMPLETADO', 'CANCELADO']
 const LABEL: Record<EstadoSolicitud, string> = {
@@ -183,7 +184,7 @@ export function SolicitudesPage() {
                           {s.zona && ` · ${s.zona}`}
                         </p>
                       </Td>
-                      <Td className="font-mono text-xs whitespace-nowrap">{s.fechaCita ? <span title={formatDateTime(s.fechaCita)}>{formatFechaCorta(s.fechaCita)}</span> : <span className="text-text-disabled">Sin agendar</span>}</Td>
+                      <Td><CitaSolicitud s={s} /></Td>
                       <Td>
                         {abierta ? (
                           <MiniSelect

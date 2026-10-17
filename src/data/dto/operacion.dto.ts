@@ -90,6 +90,10 @@ export const SolicitudDto = z.object({
   creado_en: z.string(),
   actualizado_en: z.string(),
   completado_en: z.string().nullable().optional(),
+  latitud: z.number().nullable().optional(),
+  longitud: z.number().nullable().optional(),
+  // Preferencia del cliente desde la web (no es la cita confirmada).
+  preferencia_visita: z.object({ dias: z.array(z.string()), franja: z.string() }).nullable().optional(),
 })
 export type SolicitudDto = z.infer<typeof SolicitudDto>
 

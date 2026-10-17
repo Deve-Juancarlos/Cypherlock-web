@@ -71,6 +71,8 @@ export const toSolicitud = (d: SolicitudDto): Solicitud => ({
   operador: d.operador_username,
   creadoPor: d.creado_por_username,
   fechaCita: d.fecha_cita ?? null,
+  ubicacion: d.latitud != null && d.longitud != null ? { lat: d.latitud, lon: d.longitud } : null,
+  preferencia: d.preferencia_visita ?? null,
   estado: d.estado as EstadoSolicitud,
   calificacion: d.calificacion ?? null,
   domicilioId: d.domicilio_id ?? null,

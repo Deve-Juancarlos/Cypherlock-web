@@ -95,6 +95,8 @@ export interface Solicitud {
   domicilioId: number | null
   creadoEn: string
   actualizadoEn: string
+  ubicacion: { lat: number; lon: number } | null
+  preferencia: { dias: string[]; franja: string } | null
 }
 
 export interface MetricaOperador {
