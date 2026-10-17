@@ -6,6 +6,7 @@ import { Skeleton } from '../components/ui/States'
 import { LoginPage } from '../features/auth/LoginPage'
 import { LandingPage } from '../features/publico/LandingPage'
 import { PublicLayout } from '../features/publico/PublicLayout'
+import { VisitaCodigoPage } from '../features/visita/VisitaCodigoPage'
 
 // Cada seccion se carga bajo demanda: el login no descarga el panel entero.
 const DashboardPage = lazy(() => import('../features/dashboard/DashboardPage').then((m) => ({ default: m.DashboardPage })))
@@ -65,6 +66,8 @@ const router = createBrowserRouter([
       { path: '*', element: <NoEncontradaPublica /> },
     ],
   },
+  // Visita: muestra solo el codigo para el teclado de la puerta (enlace del QR)
+  { path: '/v/:token', element: <VisitaCodigoPage /> },
   // Panel de administracion (solo ADMIN)
   { path: '/login', element: <Navigate to="/panel/login" replace /> },
   { path: '/panel/login', element: <LoginPage /> },
