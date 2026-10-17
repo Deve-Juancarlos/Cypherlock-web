@@ -51,7 +51,7 @@ function NavItems({ onNavigate }: { onNavigate?: () => void }) {
 const ESTADO_CANAL: Record<StreamStatus, { label: string; punto: string }> = {
   live: { label: 'En vivo', punto: 'bg-[#4ade80]' },
   connecting: { label: 'Conectando', punto: 'bg-[#fbbf24] animate-pulse' },
-  offline: { label: 'Sin conexión en vivo', punto: 'bg-texto-3' },
+  offline: { label: 'Sin conexión en vivo', punto: 'bg-banda-texto-3' },
 }
 
 function Cabecera({ status, onMenu }: { status: StreamStatus; onMenu: () => void }) {
@@ -59,31 +59,31 @@ function Cabecera({ status, onMenu }: { status: StreamStatus; onMenu: () => void
   const { logout } = useSession()
   const canal = ESTADO_CANAL[status]
   return (
-    <header className="sticky top-0 z-30 border-b-[3px] border-cobre bg-noche text-texto">
+    <header className="sticky top-0 z-30 border-b-[3px] border-cobre bg-banda text-banda-texto">
       <div className="flex h-14 items-center gap-3 px-4 sm:px-6">
-        <button onClick={onMenu} className="-ml-1 cursor-pointer rounded-[var(--radius-control)] p-1.5 text-texto-2 hover:bg-white/10 lg:hidden" aria-label="Abrir menú">
+        <button onClick={onMenu} className="-ml-1 cursor-pointer rounded-[var(--radius-control)] p-1.5 text-banda-texto-2 hover:bg-white/10 lg:hidden" aria-label="Abrir menú">
           <Menu className="size-5" aria-hidden />
         </button>
         <Link to="/panel" className="flex items-center gap-3">
           <img src="/brand/emblema-96.png" alt="" className="size-8" width={32} height={32} />
           <span className="text-[0.9375rem] font-semibold tracking-[0.14em]">CYPHERLOCK</span>
         </Link>
-        <span aria-hidden className="hidden h-6 w-px bg-linea sm:block" />
-        <span className="hidden text-sm text-texto-2 sm:block">Panel de administración</span>
+        <span aria-hidden className="hidden h-6 w-px bg-banda-linea sm:block" />
+        <span className="hidden text-sm text-banda-texto-2 sm:block">Panel de administración</span>
 
         <div className="ml-auto flex items-center gap-5">
-          <span role="status" className="hidden items-center gap-2 text-xs text-texto-2 md:inline-flex">
+          <span role="status" className="hidden items-center gap-2 text-xs text-banda-texto-2 md:inline-flex">
             <span className={cn('size-2 rounded-full', canal.punto)} aria-hidden />
             {canal.label}
           </span>
-          <span aria-hidden className="hidden h-6 w-px bg-linea md:block" />
+          <span aria-hidden className="hidden h-6 w-px bg-banda-linea md:block" />
           <div className="text-right leading-tight">
             <p className="text-sm font-medium">{user.username}</p>
-            <p className="text-2xs text-texto-3">Administrador</p>
+            <p className="text-2xs text-banda-texto-3">Administrador</p>
           </div>
           <button
             onClick={logout}
-            className="inline-flex cursor-pointer items-center gap-2 rounded-[var(--radius-control)] border border-linea px-2.5 py-1.5 text-xs text-texto-2 transition-colors hover:border-texto-3 hover:text-texto"
+            className="inline-flex cursor-pointer items-center gap-2 rounded-[var(--radius-control)] border border-banda-linea px-2.5 py-1.5 text-xs text-banda-texto-2 transition-colors hover:border-banda-texto-3 hover:text-banda-texto"
           >
             <LogOut className="size-3.5" aria-hidden />
             <span className="hidden sm:inline">Cerrar sesión</span>
@@ -145,9 +145,9 @@ export function AppShell() {
               transition={{ duration: 0.18, ease: [0.16, 1, 0.3, 1] }}
             >
               <div>
-                <div className="flex h-14 items-center justify-between border-b-[3px] border-cobre bg-noche px-4 text-texto">
+                <div className="flex h-14 items-center justify-between border-b-[3px] border-cobre bg-banda px-4 text-banda-texto">
                   <span className="text-sm font-semibold tracking-[0.14em]">CYPHERLOCK</span>
-                  <button onClick={() => setMenu(false)} className="cursor-pointer rounded-[var(--radius-control)] p-1.5 text-texto-2 hover:text-texto" aria-label="Cerrar menú">
+                  <button onClick={() => setMenu(false)} className="cursor-pointer rounded-[var(--radius-control)] p-1.5 text-banda-texto-2 hover:text-banda-texto" aria-label="Cerrar menú">
                     <X className="size-5" aria-hidden />
                   </button>
                 </div>

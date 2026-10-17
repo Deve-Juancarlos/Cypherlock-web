@@ -20,18 +20,31 @@
    * Usar SIEMPRE estas utilidades, nunca hex sueltos.
    */
 
-  /* Sitio publico */
-  --color-noche: #0a0f12;
-  --color-noche-alt: #0e161a;
-  --color-superficie: #131e23;
-  --color-linea: #1f2e35;
-  --color-texto: #ecf1f2;
-  --color-texto-2: #a7b6bb;
-  --color-texto-3: #7a8b91;
-  --color-senal: #2cd4e6;
-  --color-cobre: #e8955a;
-  --color-cobre-claro: #f2ae7a;
-  --color-on-cobre: #1a0e06;
+  /* Banda de marca (siempre oscura): cabecera del panel, login y pie del sitio */
+  --color-banda: #0a0f12;
+  --color-banda-2: #131e23;
+  --color-banda-texto: #ecf1f2;
+  --color-banda-texto-2: #a7b6bb;
+  --color-banda-texto-3: #7a8b91;
+  --color-banda-linea: #1f2e35;
+  --color-banda-senal: #2cd4e6;
+
+  /*
+   * Sitio publico: claro y con color. Petroleo (senal) para informacion y
+   * enlaces, cobre para las acciones; ambos con contraste AA sobre blanco.
+   */
+  --color-noche: #f7fafb;
+  --color-noche-alt: #e8f3f5;
+  --color-superficie: #ffffff;
+  --color-linea: #d5e1e5;
+  --color-texto: #0f2129;
+  --color-texto-2: #3b525c;
+  --color-texto-3: #5a717b;
+  --color-senal: #0a7d8f;
+  --color-cobre: #b9541c;
+  --color-cobre-claro: #9c4514;
+  --color-on-cobre: #ffffff;
+  --color-hoja: #2f855a;
 
   /*
    * Panel de administracion: estilo institucional (claro, alto contraste,
@@ -92,7 +105,7 @@
   }
   /* Sitio publico: lo marca index.html / PublicLayout */
   html[data-sitio="publico"] {
-    color-scheme: dark;
+    color-scheme: light;
     background-color: var(--color-noche);
     color: var(--color-texto);
   }
@@ -110,7 +123,7 @@
     outline-color: var(--color-senal);
   }
   html[data-sitio="publico"] ::selection {
-    background-color: rgb(232 149 90 / 0.3);
+    background-color: rgb(10 125 143 / 0.18);
     color: var(--color-texto);
   }
   * {

@@ -17,7 +17,7 @@ export function Hero() {
       {/* Resplandor tenue detras de la puerta: da profundidad sin degradados de fondo */}
       <div
         aria-hidden
-        className="pointer-events-none absolute top-1/2 right-[-10%] hidden size-[42rem] -translate-y-1/2 rounded-full bg-senal/[0.05] blur-3xl md:block"
+        className="pointer-events-none absolute top-1/2 right-[-10%] hidden size-[42rem] -translate-y-1/2 rounded-full bg-senal/[0.09] blur-3xl md:block"
       />
       <div className="relative mx-auto grid max-w-6xl items-center gap-4 px-5 pt-10 pb-16 sm:px-8 md:grid-cols-[1.05fr_1fr] md:pt-16 md:pb-24">
         <div>

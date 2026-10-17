@@ -5,15 +5,15 @@ import { Aparece, BotonLlamar, BotonWhatsApp, Seccion, Titulo } from './ui'
 
 export function BandaNumero() {
   return (
-    <section aria-label="Teléfono de contacto" className="border-y border-linea bg-noche-alt">
+    <section aria-label="Teléfono de contacto" className="bg-senal text-white">
       <div className="mx-auto flex max-w-6xl flex-col gap-8 px-5 py-12 sm:px-8 md:flex-row md:items-center md:justify-between">
         <Aparece>
-          <p className="max-w-md font-display text-[1.6rem] leading-tight text-texto sm:text-[1.9rem]">
+          <p className="max-w-md font-display text-[1.6rem] leading-tight text-white sm:text-[1.9rem]">
             ¿Quieres saber cómo quedaría en tu puerta? Escríbenos.
           </p>
         </Aparece>
         <Aparece delay={0.1} className="flex flex-col items-start gap-4 sm:flex-row sm:items-center sm:gap-6">
-          <a href={principal.href} className="text-[2.1rem] font-medium tracking-[-0.01em] text-cobre-claro tabular hover:text-cobre sm:text-[2.6rem]">
+          <a href={principal.href} className="text-[2.1rem] font-medium tracking-[-0.01em] text-white tabular hover:text-white/85 sm:text-[2.6rem]">
             {principal.visible}
           </a>
           <BotonWhatsApp texto="WhatsApp" />

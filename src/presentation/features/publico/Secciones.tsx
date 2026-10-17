@@ -97,9 +97,9 @@ export function Instalacion() {
 }
 
 const TIPOS = [
-  { titulo: 'Casa', texto: 'Una o varias puertas. Cada persona de la familia con su propio acceso y su propio historial.' },
-  { titulo: 'Edificio', texto: 'Cada departamento por separado: un vecino no ve ni abre lo que no le corresponde.' },
-  { titulo: 'Alquiler', texto: 'Das acceso al inquilino y lo retiras cuando se muda, sin cambiar chapas ni recoger llaves.' },
+  { titulo: 'Casa', color: 'border-t-senal', texto: 'Una o varias puertas. Cada persona de la familia con su propio acceso y su propio historial.' },
+  { titulo: 'Edificio', color: 'border-t-cobre', texto: 'Cada departamento por separado: un vecino no ve ni abre lo que no le corresponde.' },
+  { titulo: 'Alquiler', color: 'border-t-hoja', texto: 'Das acceso al inquilino y lo retiras cuando se muda, sin cambiar chapas ni recoger llaves.' },
 ]
 
 export function ParaQuien() {
@@ -107,7 +107,7 @@ export function ParaQuien() {
     <Seccion>
       <div className="grid gap-px overflow-hidden rounded-[var(--radius-card)] border border-linea bg-linea md:grid-cols-3">
         {TIPOS.map((t, i) => (
-          <Aparece key={t.titulo} delay={i * 0.07} className="bg-noche p-8">
+          <Aparece key={t.titulo} delay={i * 0.07} className={`border-t-4 bg-superficie p-8 ${t.color}`}>
             <h3 className="font-display text-[1.6rem] text-texto">{t.titulo}</h3>
             <p className="mt-3 leading-relaxed text-texto-2">{t.texto}</p>
           </Aparece>

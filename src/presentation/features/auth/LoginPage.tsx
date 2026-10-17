@@ -81,12 +81,12 @@ export function LoginPage() {
       <LoginMarca />
 
       <div className="flex min-h-dvh flex-col">
-        <header className="flex h-14 items-center justify-between border-b-[3px] border-cobre bg-noche px-5 text-texto sm:px-8 lg:border-0 lg:bg-transparent lg:text-text-primary">
+        <header className="flex h-14 items-center justify-between border-b-[3px] border-cobre bg-banda px-5 text-banda-texto sm:px-8 lg:border-0 lg:bg-transparent lg:text-text-primary">
           <span className="flex items-center gap-2.5 lg:invisible">
             <img src="/brand/emblema-96.png" alt="" className="size-6" width={24} height={24} />
             <span className="text-[0.8125rem] font-semibold tracking-[0.12em]">CYPHERLOCK</span>
           </span>
-          <Link to="/" className="inline-flex items-center gap-1.5 text-[0.8125rem] text-texto-2 transition-colors hover:underline lg:text-text-muted lg:hover:text-primary">
+          <Link to="/" className="inline-flex items-center gap-1.5 text-[0.8125rem] text-banda-texto-2 transition-colors hover:underline lg:text-text-muted lg:hover:text-primary">
             <ArrowLeft className="size-3.5" aria-hidden />
             Volver al sitio
           </Link>

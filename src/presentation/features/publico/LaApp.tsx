@@ -31,41 +31,41 @@ function Telefono() {
     <div ref={ref} className="flex justify-center [perspective:1400px]">
       <motion.div
         style={{ rotateX, rotateY, y }}
-        className="w-[17.5rem] rounded-[2.4rem] border border-linea bg-superficie p-2.5 shadow-[0_50px_90px_-30px_rgba(0,0,0,0.9)] [transform-style:preserve-3d]"
+        className="w-[17.5rem] rounded-[2.4rem] border border-banda-linea bg-banda-2 p-2.5 shadow-[0_40px_70px_-28px_rgba(15,33,41,0.45)] [transform-style:preserve-3d]"
       >
-        <div className="overflow-hidden rounded-[1.9rem] bg-noche">
+        <div className="overflow-hidden rounded-[1.9rem] bg-banda">
           <div className="flex items-center justify-between px-5 pt-4 pb-3">
-            <span className="font-mono text-2xs tracking-[0.14em] text-texto-3 uppercase">Mi casa</span>
-            <span className="inline-flex items-center gap-1.5 text-2xs text-senal">
-              <span className="size-1.5 rounded-full bg-senal" />
+            <span className="font-mono text-2xs tracking-[0.14em] text-banda-texto-3 uppercase">Mi casa</span>
+            <span className="inline-flex items-center gap-1.5 text-2xs text-banda-senal">
+              <span className="size-1.5 rounded-full bg-banda-senal" />
               en vivo
             </span>
           </div>
           <div className="px-5 pb-4">
-            <p className="font-display text-[1.35rem] leading-tight text-texto">Hoy, 3 entradas</p>
-            <p className="mt-0.5 text-2xs text-texto-3">1 alerta</p>
+            <p className="font-display text-[1.35rem] leading-tight text-banda-texto">Hoy, 3 entradas</p>
+            <p className="mt-0.5 text-2xs text-banda-texto-3">1 alerta</p>
           </div>
-          <ul className="border-t border-linea">
+          <ul className="border-t border-banda-linea">
             {EVENTOS.map((e) => (
-              <li key={e.hora + e.texto} className="grid grid-cols-[2.6rem_1fr] gap-2 border-b border-linea px-5 py-3">
-                <span className="font-mono text-2xs text-texto-3">{e.hora}</span>
+              <li key={e.hora + e.texto} className="grid grid-cols-[2.6rem_1fr] gap-2 border-b border-banda-linea px-5 py-3">
+                <span className="font-mono text-2xs text-banda-texto-3">{e.hora}</span>
                 <span>
                   <span
                     className={cn(
                       'block font-mono text-[0.625rem] tracking-[0.08em] uppercase',
-                      e.nivel === 'alerta' ? 'text-error' : e.nivel === 'info' ? 'text-texto-3' : 'text-senal',
+                      e.nivel === 'alerta' ? 'text-error' : e.nivel === 'info' ? 'text-banda-texto-3' : 'text-banda-senal',
                     )}
                   >
                     {e.tipo}
                   </span>
-                  <span className="block text-xs leading-snug text-texto-2">{e.texto}</span>
+                  <span className="block text-xs leading-snug text-banda-texto-2">{e.texto}</span>
                 </span>
               </li>
             ))}
           </ul>
           <div className="grid grid-cols-2 gap-2 p-4">
             <span className="rounded-full bg-cobre py-2 text-center text-2xs font-medium text-on-cobre">Abrir puerta</span>
-            <span className="rounded-full border border-linea py-2 text-center text-2xs text-texto">Crear QR</span>
+            <span className="rounded-full border border-banda-linea py-2 text-center text-2xs text-banda-texto">Crear QR</span>
           </div>
         </div>
       </motion.div>
