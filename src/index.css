@@ -4,59 +4,83 @@
 @import "@fontsource/ibm-plex-sans/600.css";
 @import "@fontsource/ibm-plex-mono/400.css";
 @import "@fontsource/ibm-plex-mono/500.css";
+@import "@fontsource/fraunces/400.css";
+@import "@fontsource/fraunces/600.css";
+@import "@fontsource/fraunces/400-italic.css";
 
 /*
- * Tokens de CYPHERLOCK: mismos valores y nombres que AppColors (Flutter),
- * para que web y app sean una sola marca. Usar SIEMPRE las utilidades
+ * Tokens de CYPHERLOCK / CypherTech Peru. Usar SIEMPRE las utilidades
  * (bg-surface, text-muted, border-divider...), nunca hex sueltos.
  */
 @theme {
   /*
-   * Marca: el cian de AppColors (Flutter) se usa SOLO para accion principal,
-   * foco y seleccion. Todo lo demas es grafito neutro (sin tinte azul): el
-   * panel es una consola de operacion, no una landing.
+   * Marca CYPHERLOCK: grafito profundo con tinte petroleo (el metal del
+   * emblema), cian de senal (el circuito del emblema y AppColors de Flutter)
+   * y cobre calido para las acciones del sitio publico (llamar, escribir).
+   * Usar SIEMPRE estas utilidades, nunca hex sueltos.
    */
-  --color-primary: #06b6d4;
-  --color-primary-light: #22d3ee;
-  --color-primary-dark: #0891b2;
 
-  /* Grafito neutro */
-  --color-background: #0f1112;
-  --color-rail: #0b0c0d;
-  --color-surface: #151819;
-  --color-surface-light: #22272a;
-  --color-divider: #262b2e;
+  /* Sitio publico */
+  --color-noche: #0a0f12;
+  --color-noche-alt: #0e161a;
+  --color-superficie: #131e23;
+  --color-linea: #1f2e35;
+  --color-texto: #ecf1f2;
+  --color-texto-2: #a7b6bb;
+  --color-texto-3: #7a8b91;
+  --color-senal: #2cd4e6;
+  --color-cobre: #e8955a;
+  --color-cobre-claro: #f2ae7a;
+  --color-on-cobre: #1a0e06;
 
-  --color-text-primary: #eceeef;
-  --color-text-secondary: #bcc1c5;
-  --color-text-muted: #8b9298;
-  --color-text-disabled: #5f666c;
+  /*
+   * Panel de administracion: estilo institucional (claro, alto contraste,
+   * una sola tipografia). Comparte la marca con el sitio por la franja
+   * oscura de la cabecera (noche) y el petroleo, version sobria del cian de
+   * senal con contraste AA sobre blanco.
+   */
+  --color-primary: #0b5c6b;
+  --color-primary-light: #0d6c7d;
+  --color-primary-dark: #084652;
+  --color-primary-50: #e7f1f3;
+  --color-on-primary: #ffffff;
 
-  /* Semanticos (los de AppColors), usados como texto e indicador, no como relleno */
-  --color-error: #ef4444;
-  --color-error-dark: #dc2626;
-  --color-success: #22c55e;
-  --color-warning: #f59e0b;
-  --color-info: #3b82f6;
+  --color-background: #f3f5f7;
+  --color-rail: #ffffff;
+  --color-surface: #ffffff;
+  --color-surface-light: #eef2f5;
+  --color-surface-head: #f6f8fa;
+  --color-divider: #d9dee3;
 
-  /* IBM Plex: sans para la interfaz, mono para datos (UIDs, codigos, horas, cifras) */
+  --color-text-primary: #1b2631;
+  --color-text-secondary: #34424e;
+  --color-text-muted: #56656f;
+  --color-text-disabled: #7d8b96;
+
+  /* Semanticos con contraste AA sobre blanco */
+  --color-error: #b42318;
+  --color-error-dark: #912018;
+  --color-success: #17784a;
+  --color-warning: #9a5b00;
+  --color-info: #1d5fa7;
+
   --font-sans: "IBM Plex Sans", ui-sans-serif, system-ui, sans-serif;
   --font-mono: "IBM Plex Mono", ui-monospace, "Cascadia Code", monospace;
+  --font-display: "Fraunces", Georgia, "Times New Roman", serif;
 
   --text-2xs: 0.6875rem;
 
-  /* Esquinas contenidas y sin sombras: profundidad por borde, no por halo */
-  --radius-card: 6px;
-  --radius-control: 4px;
+  --radius-card: 4px;
+  --radius-control: 3px;
   --shadow-card: none;
-  --shadow-pop: 0 16px 40px -12px rgb(0 0 0 / 0.7), 0 0 0 1px var(--color-divider);
+  --shadow-pop: 0 12px 32px -12px rgb(16 24 32 / 0.28), 0 0 0 1px var(--color-divider);
 
   --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 @layer base {
   html {
-    color-scheme: dark;
+    color-scheme: light;
     background-color: var(--color-background);
     color: var(--color-text-primary);
     font-family: var(--font-sans);
@@ -66,20 +90,33 @@
   body {
     min-height: 100dvh;
   }
+  /* Sitio publico: lo marca index.html / PublicLayout */
+  html[data-sitio="publico"] {
+    color-scheme: dark;
+    background-color: var(--color-noche);
+    color: var(--color-texto);
+  }
 
   /* Superficies del navegador tambien llevan la marca */
   ::selection {
-    background-color: rgb(6 182 212 / 0.3);
+    background-color: rgb(11 92 107 / 0.18);
     color: var(--color-text-primary);
   }
   :focus-visible {
     outline: 2px solid var(--color-primary);
-    outline-offset: 1px;
+    outline-offset: 2px;
+  }
+  html[data-sitio="publico"] :focus-visible {
+    outline-color: var(--color-senal);
+  }
+  html[data-sitio="publico"] ::selection {
+    background-color: rgb(232 149 90 / 0.3);
+    color: var(--color-texto);
   }
   * {
     scrollbar-width: thin;
     scrollbar-color: var(--color-surface-light) transparent;
-    caret-color: var(--color-primary-light);
+    caret-color: var(--color-cobre-claro);
   }
   ::-webkit-scrollbar {
     width: 10px;
@@ -99,11 +136,10 @@
   }
   /* Rotulos de seccion y cabeceras de tabla */
   .rotulo {
-    font-size: var(--text-2xs);
-    font-weight: 500;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    color: var(--color-text-disabled);
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    color: var(--color-text-muted);
   }
   /* Cifras alineadas en tablas y metricas */
   .tabular {

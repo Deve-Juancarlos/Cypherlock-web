@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom'
-import { ArrowRight, Radio } from 'lucide-react'
+import { ArrowRight, Radio, ShieldAlert, ShieldCheck, TriangleAlert } from 'lucide-react'
 import { cn } from '@/core/utils/cn'
 import { formatNumber } from '@/core/utils/format'
 import type { Resumen } from '@/domain/models'
@@ -9,38 +9,43 @@ import { EmptyState, ErrorState, Skeleton } from '../../components/ui/States'
 import { EventFeed } from '../../components/ui/eventos'
 import { useEventos, useResumen } from '../../hooks/queries'
 
-/** Franja de estado 24 h: una sola superficie, las cifras hablan por su tono. */
+/**
+ * Indicadores 24 h: tarjetas de color solido segun el estado (no decorativo:
+ * rojo solo si hubo intrusiones, ambar solo si hay alertas).
+ */
 function EstadoHoy({ r }: { r: Resumen }) {
+  const intrusos = r.ultimas24h.intrusos
   const items = [
-    {
-      label: 'Accesos registrados',
-      value: r.ultimas24h.accesos,
-      nota: 'Tarjeta, código, QR, rostro o app',
-      tone: 'text-text-primary',
-    },
+    { label: 'Accesos registrados', value: r.ultimas24h.accesos, nota: 'Tarjeta, código, QR, rostro o app', fondo: 'bg-[#0b4a57]', Icono: ShieldCheck },
     {
       label: 'Intentos de intrusión',
-      value: r.ultimas24h.intrusos,
-      nota: r.ultimas24h.intrusos ? 'Revisa las puertas afectadas' : 'Sin intentos detectados',
-      tone: r.ultimas24h.intrusos ? 'text-error' : 'text-success',
+      value: intrusos,
+      nota: intrusos ? 'Revisa las puertas afectadas' : 'Sin intentos detectados',
+      fondo: intrusos ? 'bg-[#8a1f1f]' : 'bg-[#17543a]',
+      Icono: intrusos ? ShieldAlert : ShieldCheck,
     },
     {
       label: 'Alertas acumuladas',
       value: r.alertasActivas,
-      nota: 'Advertencia o crítico',
-      tone: r.alertasActivas ? 'text-warning' : 'text-text-primary',
+      nota: 'Advertencias y eventos críticos',
+      fondo: r.alertasActivas ? 'bg-[#7a4f0b]' : 'bg-[#2b3740]',
+      Icono: TriangleAlert,
     },
   ]
   return (
-    <Panel className="grid divide-y divide-divider sm:grid-cols-3 sm:divide-x sm:divide-y-0">
-      {items.map((it) => (
-        <div key={it.label} className="px-4 py-4">
-          <p className="rotulo">{it.label}</p>
-          <p className={cn('mt-2 font-mono text-[1.75rem] leading-none font-medium tabular', it.tone)}>{formatNumber(it.value)}</p>
-          <p className="mt-2 text-xs text-text-disabled">{it.nota}</p>
-        </div>
+    <div className="grid gap-4 sm:grid-cols-3">
+      {items.map(({ label, value, nota, fondo, Icono }) => (
+        <section key={label} className={cn('relative overflow-hidden rounded-[var(--radius-card)] px-5 py-4 text-white', fondo)}>
+          <div className="flex items-start justify-between gap-3">
+            <h2 className="text-sm font-semibold text-white/90">{label}</h2>
+            <span className="rounded-[3px] bg-white/15 px-1.5 py-0.5 text-2xs font-medium text-white/90">24 h</span>
+          </div>
+          <p className="mt-2 text-[2.5rem] leading-none font-semibold tabular">{formatNumber(value)}</p>
+          <p className="mt-2 text-xs text-white/80">{nota}</p>
+          <Icono className="absolute right-4 bottom-3 size-12 text-white/20" strokeWidth={1.5} aria-hidden />
+        </section>
       ))}
-    </Panel>
+    </div>
   )
 }
 
@@ -57,10 +62,10 @@ function Composicion({
   return (
     <div>
       <div className="flex items-baseline justify-between">
-        <h3 className="text-[0.8125rem] font-medium text-text-secondary">{titulo}</h3>
-        <span className="font-mono text-sm text-text-primary tabular">{formatNumber(total)}</span>
+        <h3 className="text-sm font-semibold text-text-primary">{titulo}</h3>
+        <span className="text-sm font-semibold text-text-primary tabular">{formatNumber(total)}</span>
       </div>
-      <div className="mt-2 flex h-1.5 gap-px overflow-hidden bg-background" role="img" aria-label={`${titulo}: ${partes.map((p) => `${p.label} ${p.value}`).join(', ')}`}>
+      <div className="mt-2 flex h-2 gap-px overflow-hidden rounded-full bg-surface-light" role="img" aria-label={`${titulo}: ${partes.map((p) => `${p.label} ${p.value}`).join(', ')}`}>
         {total > 0 &&
           partes.map((p) => (
             <span key={p.label} className={p.color} style={{ width: `${(p.value / total) * 100}%` }} />
@@ -69,9 +74,9 @@ function Composicion({
       <ul className="mt-2.5 flex flex-wrap gap-x-4 gap-y-1">
         {partes.map((p) => (
           <li key={p.label} className="flex items-center gap-1.5 text-xs text-text-muted">
-            <span className={cn('size-1.5', p.color)} aria-hidden />
+            <span className={cn('size-2 rounded-full', p.color)} aria-hidden />
             {p.label}
-            <span className="font-mono text-text-secondary tabular">{formatNumber(p.value)}</span>
+            <span className="font-semibold text-text-secondary tabular">{formatNumber(p.value)}</span>
           </li>
         ))}
       </ul>
@@ -142,7 +147,7 @@ function ResumenSkeleton() {
 
 export function DashboardPage() {
   const resumen = useResumen()
-  const eventos = useEventos(20)
+  const eventos = useEventos(10)
 
   return (
     <>
@@ -162,7 +167,10 @@ export function DashboardPage() {
                 title="Actividad reciente"
                 description="Se actualiza sola cuando el canal en vivo está conectado."
                 actions={
-                  <Link to="/actividad" className="inline-flex items-center gap-1 text-[0.8125rem] text-text-muted hover:text-primary-light">
+                  <Link
+                    to="/panel/actividad"
+                    className="inline-flex h-8 items-center gap-1.5 rounded-[var(--radius-control)] border border-divider bg-surface px-3 text-[0.8125rem] font-medium text-text-secondary transition-colors hover:border-primary hover:text-primary"
+                  >
                     Ver todo <ArrowRight className="size-3.5" aria-hidden />
                   </Link>
                 }

@@ -2,9 +2,10 @@ import { forwardRef, useId, type InputHTMLAttributes, type ReactNode, type Selec
 import { cn } from '@/core/utils/cn'
 
 const control =
-  'w-full h-9 rounded-[var(--radius-control)] bg-background border border-divider px-3 text-sm text-text-primary ' +
+  // Borde #8a96a0: contraste 3:1 sobre blanco (WCAG 1.4.11), el campo se reconoce como editable.
+  'w-full h-10 rounded-[var(--radius-control)] bg-surface border border-[#8a96a0] px-3 text-sm text-text-primary ' +
   'placeholder:text-text-disabled transition-colors duration-100 ' +
-  'hover:border-text-disabled focus:outline-none focus:border-primary ' +
+  'hover:border-text-muted focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary ' +
   'disabled:opacity-50 disabled:cursor-not-allowed aria-invalid:border-error'
 
 interface FieldShellProps {
@@ -32,24 +33,39 @@ function FieldShell({ label, hint, error, children }: FieldShellProps) {
   )
 }
 
-type InputFieldProps = InputHTMLAttributes<HTMLInputElement> & { label: string; hint?: string; error?: string }
+type InputFieldProps = InputHTMLAttributes<HTMLInputElement> & {
+  label: string
+  hint?: string
+  error?: string
+  /** Control dentro del campo, a la derecha (p. ej. mostrar contrasena). */
+  trailing?: ReactNode
+}
 
 export const InputField = forwardRef<HTMLInputElement, InputFieldProps>(function InputField(
-  { label, hint, error, className, ...rest },
+  { label, hint, error, className, trailing, ...rest },
   ref,
 ) {
   return (
     <FieldShell label={label} hint={hint} error={error}>
-      {({ id, describedBy }) => (
-        <input
-          ref={ref}
-          id={id}
-          aria-invalid={error ? true : undefined}
-          aria-describedby={describedBy}
-          className={cn(control, className)}
-          {...rest}
-        />
-      )}
+      {({ id, describedBy }) => {
+        const input = (
+          <input
+            ref={ref}
+            id={id}
+            aria-invalid={error ? true : undefined}
+            aria-describedby={describedBy}
+            className={cn(control, trailing && 'pr-10', className)}
+            {...rest}
+          />
+        )
+        if (!trailing) return input
+        return (
+          <div className="relative">
+            {input}
+            <div className="absolute inset-y-0 right-0 flex items-center pr-1.5">{trailing}</div>
+          </div>
+        )
+      }}
     </FieldShell>
   )
 })

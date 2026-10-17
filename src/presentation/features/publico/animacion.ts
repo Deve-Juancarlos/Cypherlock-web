@@ -1,0 +1,2 @@
+/** Curva comun de las entradas (ease-out expo). */
+export const ease = [0.16, 1, 0.3, 1] as const

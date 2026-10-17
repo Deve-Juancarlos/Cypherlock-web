@@ -20,7 +20,7 @@ export function ActividadPage() {
   const [nivel, setNivel] = useState<Nivel>('TODOS')
   const [q, setQ] = useState('')
 
-  const lista = eventos.data ?? []
+  const lista = useMemo(() => eventos.data ?? [], [eventos.data])
   const visibles = useMemo(() => {
     const t = q.trim().toLowerCase()
     return lista.filter(

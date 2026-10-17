@@ -120,7 +120,8 @@ export function SolicitudesPage() {
   const [filtro, setFiltro] = useState<Filtro>('ABIERTAS')
   const [q, setQ] = useState('')
 
-  const lista = solicitudes.data ?? []
+  // Referencia estable: sin esto el useMemo de abajo se recalcula en cada render.
+  const lista = useMemo(() => solicitudes.data ?? [], [solicitudes.data])
   const operadores = (usuarios.data ?? []).filter((u) => u.rol === 'OPERADOR' && u.activo)
   const pasa = (s: Solicitud, f: Filtro) => (f === 'ABIERTAS' ? ABIERTAS.includes(s.estado) : s.estado === f)
   const visibles = useMemo(() => {

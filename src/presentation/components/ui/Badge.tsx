@@ -12,6 +12,15 @@ const texto: Record<Tone, string> = {
   info: 'text-info',
 }
 
+const relleno: Record<Tone, string> = {
+  neutral: 'bg-surface-light border-divider',
+  primary: 'bg-primary-50 border-primary/25',
+  success: 'bg-success/[0.08] border-success/25',
+  warning: 'bg-warning/[0.08] border-warning/25',
+  error: 'bg-error/[0.07] border-error/25',
+  info: 'bg-info/[0.07] border-info/25',
+}
+
 const marca: Record<Tone, string> = {
   neutral: 'bg-text-disabled',
   primary: 'bg-primary-light',
@@ -22,8 +31,8 @@ const marca: Record<Tone, string> = {
 }
 
 /**
- * Estado como texto con indicador cuadrado (`dot`) o como etiqueta con borde
- * fino. Sin pildoras rellenas: en una tabla densa el color va en el texto.
+ * Estado como etiqueta rellena con borde fino (estilo institucional); `dot`
+ * agrega el indicador circular delante del texto.
  */
 export function Badge({ tone = 'neutral', dot, children, className }: {
   tone?: Tone
@@ -36,11 +45,12 @@ export function Badge({ tone = 'neutral', dot, children, className }: {
       className={cn(
         'inline-flex items-center gap-1.5 whitespace-nowrap text-xs font-medium',
         texto[tone],
-        !dot && 'rounded-[3px] border border-current/35 px-1.5 py-px',
+        relleno[tone],
+        'rounded-[3px] border px-2 py-0.5',
         className,
       )}
     >
-      {dot && <span className={cn('size-1.5 shrink-0', marca[tone])} aria-hidden />}
+      {dot && <span className={cn('size-1.5 shrink-0 rounded-full', marca[tone])} aria-hidden />}
       {children}
     </span>
   )

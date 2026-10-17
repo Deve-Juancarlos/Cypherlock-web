@@ -26,6 +26,7 @@ export const endpoints = {
   },
   solicitudes: {
     list: '/solicitudes',
+    publica: '/solicitudes/publica',
     byId: (id: number) => `/solicitudes/${id}`,
     metricasOperadores: '/solicitudes/operadores/metricas',
   },

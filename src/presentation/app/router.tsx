@@ -4,6 +4,8 @@ import { useSession } from './providers'
 import { AppShell } from '../components/layout/AppShell'
 import { Skeleton } from '../components/ui/States'
 import { LoginPage } from '../features/auth/LoginPage'
+import { LandingPage } from '../features/publico/LandingPage'
+import { PublicLayout } from '../features/publico/PublicLayout'
 
 // Cada seccion se carga bajo demanda: el login no descarga el panel entero.
 const DashboardPage = lazy(() => import('../features/dashboard/DashboardPage').then((m) => ({ default: m.DashboardPage })))
@@ -23,7 +25,7 @@ function Splash() {
 function RequireAdmin({ children }: { children: ReactNode }) {
   const { state } = useSession()
   if (state.status === 'loading') return <Splash />
-  if (state.status !== 'authenticated') return <Navigate to="/login" replace />
+  if (state.status !== 'authenticated') return <Navigate to="/panel/login" replace />
   return children
 }
 
@@ -36,15 +38,38 @@ function NotFound() {
     <div className="py-24 text-center">
       <p className="font-mono text-sm text-text-disabled">404</p>
       <h1 className="mt-2 text-xl font-semibold text-text-primary">Esta sección no existe</h1>
-      <Link to="/" className="mt-4 inline-block text-sm text-primary-light hover:underline">Volver al resumen</Link>
+      <Link to="/panel" className="mt-4 inline-block text-sm text-primary-light hover:underline">Volver al resumen</Link>
+    </div>
+  )
+}
+
+function NoEncontradaPublica() {
+  return (
+    <div className="mx-auto max-w-6xl px-5 py-32 sm:px-8">
+      <p className="font-mono text-sm text-senal">404</p>
+      <h1 className="mt-3 font-display text-4xl text-texto">Esta página no existe.</h1>
+      <Link to="/" className="mt-6 inline-block text-texto-2 underline underline-offset-4 hover:text-texto">
+        Volver al inicio
+      </Link>
     </div>
   )
 }
 
 const router = createBrowserRouter([
-  { path: '/login', element: <LoginPage /> },
+  // Sitio publico de CypherTech Peru
   {
     path: '/',
+    element: <PublicLayout />,
+    children: [
+      { index: true, element: <LandingPage /> },
+      { path: '*', element: <NoEncontradaPublica /> },
+    ],
+  },
+  // Panel de administracion (solo ADMIN)
+  { path: '/login', element: <Navigate to="/panel/login" replace /> },
+  { path: '/panel/login', element: <LoginPage /> },
+  {
+    path: '/panel',
     element: (
       <RequireAdmin>
         <AppShell />

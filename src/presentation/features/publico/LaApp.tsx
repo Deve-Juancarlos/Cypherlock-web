@@ -1,0 +1,100 @@
+/** La app: telefono de ejemplo que gira en 3D con el scroll. */
+import { useRef } from 'react'
+import { motion, useScroll, useTransform } from 'motion/react'
+import { Check } from 'lucide-react'
+import { cn } from '@/core/utils/cn'
+import { Aparece, Seccion, Titulo } from './ui'
+
+const EVENTOS = [
+  { hora: '08:41', tipo: 'Tarjeta', texto: 'Puerta principal · Rosa', nivel: 'ok' },
+  { hora: '08:12', tipo: 'QR visita', texto: 'Canjeado · Técnico de internet', nivel: 'ok' },
+  { hora: '07:58', tipo: 'Alerta', texto: '3 intentos con tarjeta no registrada', nivel: 'alerta' },
+  { hora: '07:30', tipo: 'Rostro', texto: 'Puerta principal · Daniel', nivel: 'ok' },
+  { hora: 'ayer', tipo: 'Tarjeta', texto: 'Desactivada · llavero perdido', nivel: 'info' },
+] as const
+
+const PUNTOS = [
+  'Avisos cuando alguien intenta entrar con una tarjeta o un rostro que no reconoce.',
+  'Historial de entradas por persona y por forma de acceso.',
+  'Abrir la puerta a distancia y crear códigos para visitas.',
+  'Dar de baja una tarjeta perdida sin cambiar la chapa.',
+]
+
+function Telefono() {
+  const ref = useRef<HTMLDivElement>(null)
+  const { scrollYProgress } = useScroll({ target: ref, offset: ['start end', 'center center'] })
+  const rotateX = useTransform(scrollYProgress, [0, 1], [28, 6])
+  const rotateY = useTransform(scrollYProgress, [0, 1], [-24, -10])
+  const y = useTransform(scrollYProgress, [0, 1], [60, 0])
+
+  return (
+    <div ref={ref} className="flex justify-center [perspective:1400px]">
+      <motion.div
+        style={{ rotateX, rotateY, y }}
+        className="w-[17.5rem] rounded-[2.4rem] border border-linea bg-superficie p-2.5 shadow-[0_50px_90px_-30px_rgba(0,0,0,0.9)] [transform-style:preserve-3d]"
+      >
+        <div className="overflow-hidden rounded-[1.9rem] bg-noche">
+          <div className="flex items-center justify-between px-5 pt-4 pb-3">
+            <span className="font-mono text-2xs tracking-[0.14em] text-texto-3 uppercase">Mi casa</span>
+            <span className="inline-flex items-center gap-1.5 text-2xs text-senal">
+              <span className="size-1.5 rounded-full bg-senal" />
+              en vivo
+            </span>
+          </div>
+          <div className="px-5 pb-4">
+            <p className="font-display text-[1.35rem] leading-tight text-texto">Hoy, 3 entradas</p>
+            <p className="mt-0.5 text-2xs text-texto-3">1 alerta</p>
+          </div>
+          <ul className="border-t border-linea">
+            {EVENTOS.map((e) => (
+              <li key={e.hora + e.texto} className="grid grid-cols-[2.6rem_1fr] gap-2 border-b border-linea px-5 py-3">
+                <span className="font-mono text-2xs text-texto-3">{e.hora}</span>
+                <span>
+                  <span
+                    className={cn(
+                      'block font-mono text-[0.625rem] tracking-[0.08em] uppercase',
+                      e.nivel === 'alerta' ? 'text-error' : e.nivel === 'info' ? 'text-texto-3' : 'text-senal',
+                    )}
+                  >
+                    {e.tipo}
+                  </span>
+                  <span className="block text-xs leading-snug text-texto-2">{e.texto}</span>
+                </span>
+              </li>
+            ))}
+          </ul>
+          <div className="grid grid-cols-2 gap-2 p-4">
+            <span className="rounded-full bg-cobre py-2 text-center text-2xs font-medium text-on-cobre">Abrir puerta</span>
+            <span className="rounded-full border border-linea py-2 text-center text-2xs text-texto">Crear QR</span>
+          </div>
+        </div>
+      </motion.div>
+    </div>
+  )
+}
+
+export function LaApp() {
+  return (
+    <Seccion id="app" alt>
+      <div className="grid items-center gap-16 overflow-hidden md:grid-cols-2">
+        <div className="order-2 md:order-1">
+          <Telefono />
+          <p className="mt-6 text-center text-xs text-texto-3">Pantalla de ejemplo</p>
+        </div>
+        <div className="order-1 md:order-2">
+          <Aparece>
+            <Titulo>Lo que pasa en tu puerta, en tu bolsillo.</Titulo>
+          </Aparece>
+          <ul className="mt-8 space-y-4">
+            {PUNTOS.map((p, i) => (
+              <Aparece as="li" key={p} delay={0.05 + i * 0.06} className="flex gap-3.5 leading-relaxed text-texto-2">
+                <Check className="mt-1 size-4 shrink-0 text-senal" aria-hidden />
+                {p}
+              </Aparece>
+            ))}
+          </ul>
+        </div>
+      </div>
+    </Seccion>
+  )
+}

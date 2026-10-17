@@ -4,7 +4,7 @@ import tailwindcss from '@tailwindcss/vite'
 import react from '@vitejs/plugin-react'
 import { defineConfig, loadEnv } from 'vite'
 
-// En desarrollo, /api y /ws se reenvian al backend (evita CORS).
+// En desarrollo, /api, /ws y /health se reenvian al backend (evita CORS).
 // VITE_API_PROXY_TARGET: URL del backend FastAPI (por defecto el local).
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), '')
@@ -25,6 +25,7 @@ export default defineConfig(({ mode }) => {
               { name: 'datos', test: /node_modules[\\/](react-router|react-router-dom|@tanstack)[\\/]/ },
               { name: 'motion', test: /node_modules[\\/](motion|framer-motion|motion-dom|motion-utils)[\\/]/ },
               { name: 'zod', test: /node_modules[\\/]zod[\\/]/ },
+              { name: 'three', test: /node_modules[\\/]three[\\/]/ },
               { name: 'iconos', test: /node_modules[\\/]lucide-react[\\/]/ },
             ],
           },
@@ -36,6 +37,7 @@ export default defineConfig(({ mode }) => {
       proxy: {
         '/api': { target, changeOrigin: true },
         '/ws': { target, changeOrigin: true, ws: true },
+        '/health': { target, changeOrigin: true },
       },
     },
     test: {

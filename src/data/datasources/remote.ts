@@ -86,6 +86,22 @@ export const solicitudesRemote = {
     http(endpoints.solicitudes.metricasOperadores, { schema: z.array(MetricaOperadorDto) }),
 }
 
+/** Formulario de la web publica: sin sesion, crea una solicitud PENDIENTE. */
+export interface SolicitudPublicaBody {
+  cliente_nombre: string
+  cliente_telefono: string
+  direccion: string
+  distrito: string
+  departamento: string
+  tipo_inmueble: 'CASA' | 'EDIFICIO' | 'ALQUILER'
+  notas: string
+}
+
+export const solicitudPublicaRemote = {
+  crear: (body: SolicitudPublicaBody) =>
+    http(endpoints.solicitudes.publica, { method: 'POST', body, auth: false }),
+}
+
 export const eventosRemote = {
   list: (limit = 100) => http(endpoints.eventos.list, { query: { limit }, schema: z.array(EventoDto) }),
   alertas: (limit = 100) => http(endpoints.eventos.alertas, { query: { limit }, schema: z.array(EventoDto) }),

@@ -15,6 +15,10 @@ services:
       - type: rewrite
         source: /api/*
         destination: https://cypherlock-api.onrender.com/api/*
+      # Estado de la API para el login (la instancia gratis se duerme).
+      - type: rewrite
+        source: /health
+        destination: https://cypherlock-api.onrender.com/health
       # SPA: cualquier otra ruta la resuelve React Router.
       - type: rewrite
         source: /*
