@@ -20,7 +20,7 @@ const ALTO_CABECERA = 'top-[3.6875rem]' // 56px de franja + 3px de linea
 function NavItems({ onNavigate }: { onNavigate?: () => void }) {
   return (
     <nav aria-label="Principal" className="flex flex-col py-4">
-      <p className="mb-2 px-5 text-xs font-semibold text-texto-3">Operación</p>
+      <p className="rotulo mb-2 px-5">Operación</p>
       {NAV.map(({ to, label, icon: Icon, end }) => (
         <NavLink
           key={to}
@@ -31,14 +31,14 @@ function NavItems({ onNavigate }: { onNavigate?: () => void }) {
             cn(
               'flex items-center gap-3 border-l-[3px] px-5 py-2.5 text-sm transition-colors duration-100',
               isActive
-                ? 'border-cobre bg-white/[0.07] font-semibold text-texto'
-                : 'border-transparent text-texto-2 hover:bg-white/[0.04] hover:text-texto',
+                ? 'border-primary bg-primary-50 font-semibold text-primary-dark'
+                : 'border-transparent text-text-secondary hover:bg-surface-light hover:text-text-primary',
             )
           }
         >
           {({ isActive }) => (
             <>
-              <Icon className={cn('size-[1.125rem]', isActive ? 'text-cobre-claro' : 'text-texto-3')} aria-hidden />
+              <Icon className={cn('size-[1.125rem]', isActive ? 'text-primary' : 'text-text-muted')} aria-hidden />
               {label}
             </>
           )}
@@ -95,7 +95,7 @@ function Cabecera({ status, onMenu }: { status: StreamStatus; onMenu: () => void
 }
 
 function PieLateral() {
-  return <p className="border-t border-linea px-5 py-4 text-2xs text-texto-3">CypherTech Perú · Uso interno</p>
+  return <p className="border-t border-divider px-5 py-4 text-2xs text-text-disabled">CypherTech Perú · Uso interno</p>
 }
 
 export function AppShell() {
@@ -115,12 +115,20 @@ export function AppShell() {
       <Cabecera status={status} onMenu={() => setMenu(true)} />
 
       <div className="flex-1 lg:grid lg:grid-cols-[15rem_minmax(0,1fr)]">
-        <aside className={cn('sticky hidden h-[calc(100dvh-3.6875rem)] flex-col justify-between bg-noche lg:flex', ALTO_CABECERA)}>
+        <aside className={cn('sticky hidden h-[calc(100dvh-3.6875rem)] flex-col justify-between border-r border-divider bg-rail lg:flex', ALTO_CABECERA)}>
           <NavItems />
           <PieLateral />
         </aside>
         <main className="mx-auto w-full max-w-[88rem] px-4 py-6 sm:px-6 lg:px-8 lg:py-8">
-          <Outlet />
+          {/* Entrada corta al cambiar de seccion; MotionConfig respeta reduced-motion */}
+          <motion.div
+            key={location.pathname}
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.28, ease: [0.16, 1, 0.3, 1] }}
+          >
+            <Outlet />
+          </motion.div>
         </main>
       </div>
 
@@ -130,7 +138,7 @@ export function AppShell() {
           <div className="fixed inset-0 z-50 lg:hidden">
             <motion.div className="absolute inset-0 bg-black/50" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setMenu(false)} />
             <motion.aside
-              className="absolute inset-y-0 left-0 flex w-72 flex-col justify-between bg-noche"
+              className="absolute inset-y-0 left-0 flex w-72 flex-col justify-between border-r border-divider bg-rail"
               initial={{ x: -24, opacity: 0 }}
               animate={{ x: 0, opacity: 1 }}
               exit={{ x: -24, opacity: 0 }}

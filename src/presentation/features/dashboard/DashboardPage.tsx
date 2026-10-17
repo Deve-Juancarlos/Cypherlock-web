@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom'
-import { ArrowRight, Radio, ShieldAlert, ShieldCheck, TriangleAlert } from 'lucide-react'
+import { motion } from 'motion/react'
+import { ArrowRight, Radio } from 'lucide-react'
 import { cn } from '@/core/utils/cn'
 import { formatNumber } from '@/core/utils/format'
 import type { Resumen } from '@/domain/models'
@@ -8,43 +9,39 @@ import { Panel, PanelHeader } from '../../components/ui/Panel'
 import { EmptyState, ErrorState, Skeleton } from '../../components/ui/States'
 import { EventFeed } from '../../components/ui/eventos'
 import { useEventos, useResumen } from '../../hooks/queries'
+import { useContador } from '../../hooks/useContador'
 
-/**
- * Indicadores 24 h: tarjetas de color solido segun el estado (no decorativo:
- * rojo solo si hubo intrusiones, ambar solo si hay alertas).
- */
+/** Indicadores 24 h: tarjetas con barra lateral de color segun el estado. */
+function Indicador({ label, value, nota, tone, barra }: { label: string; value: number; nota: string; tone: string; barra: string }) {
+  const n = useContador(value)
+  return (
+    <Panel className={cn('border-l-4 px-5 py-4', barra)}>
+      <p className="text-sm font-semibold text-text-secondary">{label}</p>
+      <p className={cn('mt-2 text-[2.25rem] leading-none font-semibold tabular', tone)}>{formatNumber(n)}</p>
+      <p className="mt-2 text-xs text-text-muted">{nota}</p>
+    </Panel>
+  )
+}
+
 function EstadoHoy({ r }: { r: Resumen }) {
   const intrusos = r.ultimas24h.intrusos
-  const items = [
-    { label: 'Accesos registrados', value: r.ultimas24h.accesos, nota: 'Tarjeta, código, QR, rostro o app', fondo: 'bg-[#0b4a57]', Icono: ShieldCheck },
-    {
-      label: 'Intentos de intrusión',
-      value: intrusos,
-      nota: intrusos ? 'Revisa las puertas afectadas' : 'Sin intentos detectados',
-      fondo: intrusos ? 'bg-[#8a1f1f]' : 'bg-[#17543a]',
-      Icono: intrusos ? ShieldAlert : ShieldCheck,
-    },
-    {
-      label: 'Alertas acumuladas',
-      value: r.alertasActivas,
-      nota: 'Advertencias y eventos críticos',
-      fondo: r.alertasActivas ? 'bg-[#7a4f0b]' : 'bg-[#2b3740]',
-      Icono: TriangleAlert,
-    },
-  ]
   return (
     <div className="grid gap-4 sm:grid-cols-3">
-      {items.map(({ label, value, nota, fondo, Icono }) => (
-        <section key={label} className={cn('relative overflow-hidden rounded-[var(--radius-card)] px-5 py-4 text-white', fondo)}>
-          <div className="flex items-start justify-between gap-3">
-            <h2 className="text-sm font-semibold text-white/90">{label}</h2>
-            <span className="rounded-[3px] bg-white/15 px-1.5 py-0.5 text-2xs font-medium text-white/90">24 h</span>
-          </div>
-          <p className="mt-2 text-[2.5rem] leading-none font-semibold tabular">{formatNumber(value)}</p>
-          <p className="mt-2 text-xs text-white/80">{nota}</p>
-          <Icono className="absolute right-4 bottom-3 size-12 text-white/20" strokeWidth={1.5} aria-hidden />
-        </section>
-      ))}
+      <Indicador label="Accesos registrados" value={r.ultimas24h.accesos} nota="Tarjeta, código, QR, rostro o app" tone="text-text-primary" barra="border-l-primary" />
+      <Indicador
+        label="Intentos de intrusión"
+        value={intrusos}
+        nota={intrusos ? 'Revisa las puertas afectadas' : 'Sin intentos detectados'}
+        tone={intrusos ? 'text-error' : 'text-success'}
+        barra={intrusos ? 'border-l-error' : 'border-l-success'}
+      />
+      <Indicador
+        label="Alertas acumuladas"
+        value={r.alertasActivas}
+        nota="Advertencia o crítico"
+        tone={r.alertasActivas ? 'text-warning' : 'text-text-primary'}
+        barra={r.alertasActivas ? 'border-l-warning' : 'border-l-divider'}
+      />
     </div>
   )
 }
@@ -68,7 +65,13 @@ function Composicion({
       <div className="mt-2 flex h-2 gap-px overflow-hidden rounded-full bg-surface-light" role="img" aria-label={`${titulo}: ${partes.map((p) => `${p.label} ${p.value}`).join(', ')}`}>
         {total > 0 &&
           partes.map((p) => (
-            <span key={p.label} className={p.color} style={{ width: `${(p.value / total) * 100}%` }} />
+            <motion.span
+              key={p.label}
+              className={p.color}
+              initial={{ width: 0 }}
+              animate={{ width: `${(p.value / total) * 100}%` }}
+              transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
+            />
           ))}
       </div>
       <ul className="mt-2.5 flex flex-wrap gap-x-4 gap-y-1">
@@ -147,7 +150,7 @@ function ResumenSkeleton() {
 
 export function DashboardPage() {
   const resumen = useResumen()
-  const eventos = useEventos(10)
+  const eventos = useEventos(20)
 
   return (
     <>
@@ -167,10 +170,7 @@ export function DashboardPage() {
                 title="Actividad reciente"
                 description="Se actualiza sola cuando el canal en vivo está conectado."
                 actions={
-                  <Link
-                    to="/panel/actividad"
-                    className="inline-flex h-8 items-center gap-1.5 rounded-[var(--radius-control)] border border-divider bg-surface px-3 text-[0.8125rem] font-medium text-text-secondary transition-colors hover:border-primary hover:text-primary"
-                  >
+                  <Link to="/panel/actividad" className="inline-flex items-center gap-1 text-[0.8125rem] font-medium text-primary hover:underline">
                     Ver todo <ArrowRight className="size-3.5" aria-hidden />
                   </Link>
                 }

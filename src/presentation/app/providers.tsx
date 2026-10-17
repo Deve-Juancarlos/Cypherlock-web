@@ -1,5 +1,6 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from 'react'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+import { MotionConfig } from 'motion/react'
 import { AppError } from '@/core/errors/AppError'
 import type { Usuario } from '@/domain/models'
 import type { Repositories } from '@/domain/repositories'
@@ -94,6 +95,8 @@ export function AppProviders({ repos, children }: { repos: Repositories; childre
   const [queryClient] = useState(makeQueryClient)
   return (
     <ReposCtx.Provider value={repos}>
+      {/* Todas las animaciones respetan "reducir movimiento" del sistema */}
+      <MotionConfig reducedMotion="user">
       <QueryClientProvider client={queryClient}>
         <ToastProvider>
           <SessionProvider repos={repos} queryClient={queryClient}>
@@ -101,6 +104,7 @@ export function AppProviders({ repos, children }: { repos: Repositories; childre
           </SessionProvider>
         </ToastProvider>
       </QueryClientProvider>
+      </MotionConfig>
     </ReposCtx.Provider>
   )
 }
