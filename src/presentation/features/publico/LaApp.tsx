@@ -1,7 +1,7 @@
 /** La app: telefono de ejemplo que gira en 3D con el scroll. */
 import { useRef } from 'react'
 import { motion, useScroll, useTransform } from 'motion/react'
-import { Check } from 'lucide-react'
+import { Check, Download } from 'lucide-react'
 import { cn } from '@/core/utils/cn'
 import { Aparece, Seccion, Titulo } from './ui'
 
@@ -93,6 +93,20 @@ export function LaApp() {
               </Aparece>
             ))}
           </ul>
+          <Aparece delay={0.3} className="mt-9">
+            <a
+              href="/descargas/cypherlock-android.apk"
+              download
+              className="inline-flex h-12 items-center gap-2.5 rounded-full bg-cobre px-6 text-[0.9375rem] font-medium text-on-cobre transition-colors hover:bg-cobre-claro"
+            >
+              <Download className="size-4" aria-hidden />
+              Descargar para Android
+            </a>
+            <p className="mt-3 max-w-sm text-sm leading-relaxed text-texto-2">
+              Para clientes con CYPHERLOCK instalado. Ábrela y toca <strong className="text-texto">Activar mi cuenta</strong> con
+              el código que te entregó el técnico.
+            </p>
+          </Aparece>
         </div>
       </div>
     </Seccion>

@@ -18,13 +18,13 @@ const FORMAS = [
   {
     titulo: 'Pase para visitas',
     texto:
-      'Desde la app le mandas un enlace o un QR a quien viene a verte. Abre su código de 6 dígitos y lo marca en el teclado de la puerta. Sirve para un solo ingreso y lo puedes desactivar cuando quieras.',
+      'Desde la app le mandas un enlace por WhatsApp a quien viene a verte. En la puerta lo abre, escribe el código que le diste y la puerta se abre. Sirve para un solo ingreso y lo puedes desactivar cuando quieras.',
     dato: 'Un solo ingreso',
   },
   {
-    titulo: 'Código numérico temporal',
-    texto: 'Para quien llega sin celular: el técnico, un familiar, el delivery. Se usa una vez y deja de valer.',
-    dato: 'Un solo uso',
+    titulo: 'Desde tu celular',
+    texto: 'Abres la puerta a distancia desde la app, por ejemplo para que entre alguien de tu familia. Cada apertura queda registrada.',
+    dato: 'App CYPHERLOCK',
   },
 ]
 

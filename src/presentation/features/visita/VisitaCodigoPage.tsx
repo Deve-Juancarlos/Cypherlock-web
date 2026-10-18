@@ -1,72 +1,97 @@
 /**
- * Pagina que abre la visita desde el QR o el enlace: muestra SOLO el codigo
- * de 6 digitos para marcar en el teclado de la puerta. Sin direccion ni
- * nombres. Se reconsulta cada 15 s para reflejar si ya se uso o el
- * propietario lo desactivo.
+ * Pase de visita: la visita escribe su codigo de 6 digitos en este teclado y la
+ * puerta se abre. El codigo NO se muestra aqui (llega por separado); si la casa
+ * tiene coordenadas se pide la ubicacion para comprobar que esta en la puerta.
  */
 import { useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom'
-import { z } from 'zod'
-import { http } from '@/network/httpClient'
+import { Check, Delete, LockOpen } from 'lucide-react'
+import { cn } from '@/core/utils/cn'
+import { abrirConCodigo, consultarPase, pedirUbicacion, type EstadoPase } from './visitaApi'
 
-const Respuesta = z.object({
-  estado: z.string(),
-  codigo: z.string().regex(/^\d{6}$/).optional(),
-})
-type Estado = { tipo: 'cargando' } | { tipo: 'vigente'; codigo: string } | { tipo: 'no_disponible' } | { tipo: 'error' }
+type Vista = 'cargando' | 'teclado' | 'abriendo' | 'abierta' | 'no_disponible'
 
-const REFRESCO_MS = 15_000
-
-function useCodigoVisita(token: string | undefined): Estado {
-  const [estado, setEstado] = useState<Estado>({ tipo: 'cargando' })
-
-  useEffect(() => {
-    if (!token) return
-    let vivo = true
-    const consultar = async () => {
-      try {
-        const r = await http(`/visitas/publica/${encodeURIComponent(token)}/codigo`, { auth: false, schema: Respuesta })
-        if (!vivo) return
-        setEstado(r.estado === 'VIGENTE' && r.codigo ? { tipo: 'vigente', codigo: r.codigo } : { tipo: 'no_disponible' })
-      } catch {
-        // Un fallo puntual de red no borra un codigo ya mostrado.
-        if (vivo) setEstado((e) => (e.tipo === 'vigente' ? e : { tipo: 'error' }))
-      }
-    }
-    void consultar()
-    const id = setInterval(consultar, REFRESCO_MS)
-    return () => {
-      vivo = false
-      clearInterval(id)
-    }
-  }, [token])
-
-  return token ? estado : { tipo: 'no_disponible' }
-}
-
-function Digitos({ codigo }: { codigo: string }) {
+function Casillas({ codigo }: { codigo: string }) {
   return (
-    <p aria-label={`Código ${codigo.split('').join(' ')}`} className="flex justify-center gap-2 sm:gap-3">
-      {codigo.split('').map((d, i) => (
+    <div className="flex justify-center gap-2" aria-label={`${codigo.length} de 6 dígitos`}>
+      {Array.from({ length: 6 }, (_, i) => (
         <span
           key={i}
-          aria-hidden
-          className="grid h-16 w-11 place-items-center rounded-[var(--radius-control)] border border-linea bg-superficie font-mono text-[2rem] font-semibold text-texto shadow-sm sm:h-20 sm:w-14 sm:text-[2.6rem]"
+          className={cn(
+            'grid h-14 w-11 place-items-center rounded-[var(--radius-control)] border bg-superficie font-mono text-[1.8rem] font-semibold',
+            i < codigo.length ? 'border-senal text-texto' : 'border-linea text-texto-3',
+          )}
         >
-          {d}
+          {i < codigo.length ? '•' : ''}
         </span>
       ))}
-    </p>
+    </div>
+  )
+}
+
+function Teclado({ onDigito, onBorrar, deshabilitado }: { onDigito: (d: string) => void; onBorrar: () => void; deshabilitado: boolean }) {
+  const tecla =
+    'h-16 rounded-[var(--radius-card)] border border-linea bg-superficie text-[1.6rem] font-medium text-texto transition-colors active:bg-noche-alt disabled:opacity-50'
+  return (
+    <div className="grid grid-cols-3 gap-3" role="group" aria-label="Teclado numérico">
+      {['1', '2', '3', '4', '5', '6', '7', '8', '9'].map((d) => (
+        <button key={d} type="button" className={tecla} disabled={deshabilitado} onClick={() => onDigito(d)}>{d}</button>
+      ))}
+      <span />
+      <button type="button" className={tecla} disabled={deshabilitado} onClick={() => onDigito('0')}>0</button>
+      <button type="button" className={cn(tecla, 'grid place-items-center')} disabled={deshabilitado} onClick={onBorrar} aria-label="Borrar">
+        <Delete className="size-6" aria-hidden />
+      </button>
+    </div>
   )
 }
 
 export function VisitaCodigoPage() {
-  const { token } = useParams()
-  const estado = useCodigoVisita(token)
+  const { token = '' } = useParams()
+  const [vista, setVista] = useState<Vista>('cargando')
+  const [pase, setPase] = useState<EstadoPase | null>(null)
+  const [codigo, setCodigo] = useState('')
+  const [mensaje, setMensaje] = useState<string | null>(null)
+
+  useEffect(() => {
+    consultarPase(token)
+      .then((p) => {
+        setPase(p)
+        setVista(p.estado === 'VIGENTE' ? 'teclado' : 'no_disponible')
+      })
+      .catch(() => setVista('no_disponible'))
+  }, [token])
+
+  const abrir = async (completo: string) => {
+    setVista('abriendo')
+    setMensaje(null)
+    let ubicacion
+    if (pase?.requiere_ubicacion) {
+      try {
+        ubicacion = await pedirUbicacion()
+      } catch (e) {
+        setMensaje((e as Error).message)
+        setCodigo('')
+        return setVista('teclado')
+      }
+    }
+    const r = await abrirConCodigo(token, completo, ubicacion)
+    if (r.tipo === 'abierta') return setVista('abierta')
+    setMensaje(r.mensaje)
+    setCodigo('')
+    setVista(r.agotado ? 'no_disponible' : 'teclado')
+  }
+
+  const digito = (d: string) => {
+    if (vista !== 'teclado' || codigo.length >= 6) return
+    const nuevo = codigo + d
+    setCodigo(nuevo)
+    if (nuevo.length === 6) void abrir(nuevo)
+  }
 
   return (
     <div className="flex min-h-dvh flex-col bg-noche text-texto">
-      <title>Tu código de acceso · CYPHERLOCK</title>
+      <title>Abrir la puerta · CYPHERLOCK</title>
       <meta name="robots" content="noindex, nofollow" />
       <meta name="referrer" content="no-referrer" />
       <header className="flex items-center justify-center gap-2.5 border-b-[3px] border-cobre bg-banda py-4">
@@ -74,37 +99,42 @@ export function VisitaCodigoPage() {
         <span className="text-[0.875rem] font-semibold tracking-[0.16em] text-banda-texto">CYPHERLOCK</span>
       </header>
 
-      <main className="flex flex-1 items-center justify-center px-5 py-12">
-        <div className="w-full max-w-sm text-center" role="status" aria-live="polite">
-          {estado.tipo === 'cargando' && <p className="text-texto-2">Cargando tu código…</p>}
+      <main className="flex flex-1 items-center justify-center px-5 py-10">
+        <div className="w-full max-w-xs text-center">
+          {vista === 'cargando' && <p role="status" className="text-texto-2">Cargando tu pase…</p>}
 
-          {estado.tipo === 'vigente' && (
+          {(vista === 'teclado' || vista === 'abriendo') && (
             <>
-              <p className="text-sm font-medium tracking-wide text-senal">Tu código de acceso</p>
-              <div className="mt-5">
-                <Digitos codigo={estado.codigo} />
-              </div>
-              <p className="mt-8 leading-relaxed text-texto-2">
-                Márcalo en el <strong className="text-texto">teclado de la puerta</strong>.
+              <h1 className="text-xl font-semibold">Escribe tu código</h1>
+              <p className="mt-2 text-sm text-texto-2">Los 6 dígitos que te envió quien te invitó.</p>
+              <div className="mt-6"><Casillas codigo={codigo} /></div>
+              <p role="alert" aria-live="assertive" className="mt-4 min-h-10 text-sm text-error">{mensaje}</p>
+              {vista === 'abriendo' && <p role="status" className="mb-3 text-sm text-senal">Abriendo la puerta…</p>}
+              <Teclado onDigito={digito} onBorrar={() => setCodigo((c) => c.slice(0, -1))} deshabilitado={vista === 'abriendo'} />
+              <p className="mt-5 text-xs text-texto-3">
+                {pase?.requiere_ubicacion ? 'Te pediremos tu ubicación para comprobar que estás en la puerta. ' : ''}
+                Un solo ingreso{typeof pase?.intentos_restantes === 'number' ? ` · ${pase.intentos_restantes} intentos` : ''}.
               </p>
-              <p className="mt-2 text-sm text-texto-3">Sirve para un solo ingreso. Tienes 3 intentos.</p>
             </>
           )}
 
-          {estado.tipo === 'no_disponible' && (
-            <>
-              <p className="text-lg font-semibold text-texto">Este código ya no está disponible</p>
+          {vista === 'abierta' && (
+            <div role="status">
+              <span className="mx-auto grid size-20 place-items-center rounded-full bg-hoja/10 text-hoja">
+                <LockOpen className="size-10" aria-hidden />
+              </span>
+              <p className="mt-5 text-2xl font-semibold">¡Puerta abierta!</p>
+              <p className="mt-2 inline-flex items-center gap-1.5 text-texto-2"><Check className="size-4 text-hoja" aria-hidden /> Bienvenido. Empuja la puerta para entrar.</p>
+            </div>
+          )}
+
+          {vista === 'no_disponible' && (
+            <div role="status">
+              <p className="text-lg font-semibold">Este pase ya no está disponible</p>
               <p className="mt-3 leading-relaxed text-texto-2">
-                Ya se usó o fue desactivado. Pide un nuevo acceso a quien te invitó.
+                {mensaje ?? 'Ya se usó, se bloqueó por intentos fallidos o fue desactivado.'} Pide un nuevo pase a quien te invitó.
               </p>
-            </>
-          )}
-
-          {estado.tipo === 'error' && (
-            <>
-              <p className="text-lg font-semibold text-texto">No pudimos cargar tu código</p>
-              <p className="mt-3 leading-relaxed text-texto-2">Revisa tu conexión. Lo reintentamos en unos segundos.</p>
-            </>
+            </div>
           )}
         </div>
       </main>
