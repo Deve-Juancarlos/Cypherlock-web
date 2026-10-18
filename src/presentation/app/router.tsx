@@ -7,6 +7,7 @@ import { LoginPage } from '../features/auth/LoginPage'
 import { LandingPage } from '../features/publico/LandingPage'
 import { PublicLayout } from '../features/publico/PublicLayout'
 import { VisitaCodigoPage } from '../features/visita/VisitaCodigoPage'
+import { ActivarPage } from '../features/activar/ActivarPage'
 
 // Cada seccion se carga bajo demanda: el login no descarga el panel entero.
 const DashboardPage = lazy(() => import('../features/dashboard/DashboardPage').then((m) => ({ default: m.DashboardPage })))
@@ -68,6 +69,8 @@ const router = createBrowserRouter([
   },
   // Visita: muestra solo el codigo para el teclado de la puerta (enlace del QR)
   { path: '/v/:token', element: <VisitaCodigoPage /> },
+  // Propietario: activar su cuenta con el codigo que le entrega el tecnico
+  { path: '/activar/:codigo', element: <ActivarPage /> },
   // Panel de administracion (solo ADMIN)
   { path: '/login', element: <Navigate to="/panel/login" replace /> },
   { path: '/panel/login', element: <LoginPage /> },
