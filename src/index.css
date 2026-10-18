@@ -167,4 +167,36 @@
       transition-duration: 0.01ms !important;
     }
   }
+
+  /* Suavizar solo las teselas: el pin y los controles conservan su color. */
+  html[data-sitio="publico"] .leaflet-tile-pane {
+    filter: saturate(0.3) brightness(1.1) contrast(1.02);
+  }
+
+  .custom-brand-pin {
+    filter: drop-shadow(0 4px 8px rgb(185 84 28 / 0.4));
+  }
+
+  /* Leaflet posiciona el marcador con transform; escalar su interior evita moverlo. */
+  .custom-brand-pin > div {
+    transform-origin: center bottom;
+    transition: transform 0.2s ease;
+  }
+
+  .custom-brand-pin:hover > div {
+    transform: scale(1.1);
+  }
+
+  /* Atribución discreta */
+  .leaflet-control-attribution {
+    font-size: 9px !important;
+    opacity: 0.6;
+    background: rgba(255, 255, 255, 0.7) !important;
+    padding: 2px 4px !important;
+  }
+
+  /* Ocultar controles de zoom para look más limpio */
+  .leaflet-control-zoom {
+    display: none;
+  }
 }
