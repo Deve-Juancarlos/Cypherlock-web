@@ -1,140 +1,14 @@
+import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { motion } from 'motion/react'
-import { ArrowRight, Radio } from 'lucide-react'
-import { cn } from '@/core/utils/cn'
-import { formatNumber } from '@/core/utils/format'
-import type { Resumen } from '@/domain/models'
+import { ArrowRight, Radio, RefreshCw, CheckCircle2, AlertTriangle, Clock } from 'lucide-react'
 import { PageHeader } from '../../components/layout/AppShell'
 import { Panel, PanelHeader } from '../../components/ui/Panel'
 import { EmptyState, ErrorState, Skeleton } from '../../components/ui/States'
 import { EventFeed } from '../../components/ui/eventos'
 import { useEventos, useResumen } from '../../hooks/queries'
-import { useContador } from '../../hooks/useContador'
-
-/** Indicadores 24 h: tarjetas con barra lateral de color segun el estado. */
-function Indicador({ label, value, nota, tone, barra }: { label: string; value: number; nota: string; tone: string; barra: string }) {
-  const n = useContador(value)
-  return (
-    <Panel className={cn('border-l-4 px-5 py-4', barra)}>
-      <p className="text-sm font-semibold text-text-secondary">{label}</p>
-      <p className={cn('mt-2 text-[2.25rem] leading-none font-semibold tabular', tone)}>{formatNumber(n)}</p>
-      <p className="mt-2 text-xs text-text-muted">{nota}</p>
-    </Panel>
-  )
-}
-
-function EstadoHoy({ r }: { r: Resumen }) {
-  const intrusos = r.ultimas24h.intrusos
-  return (
-    <div className="grid gap-4 sm:grid-cols-3">
-      <Indicador label="Accesos registrados" value={r.ultimas24h.accesos} nota="Tarjeta, código, QR, rostro o app" tone="text-text-primary" barra="border-l-primary" />
-      <Indicador
-        label="Intentos de intrusión"
-        value={intrusos}
-        nota={intrusos ? 'Revisa las puertas afectadas' : 'Sin intentos detectados'}
-        tone={intrusos ? 'text-error' : 'text-success'}
-        barra={intrusos ? 'border-l-error' : 'border-l-success'}
-      />
-      <Indicador
-        label="Alertas acumuladas"
-        value={r.alertasActivas}
-        nota="Advertencia o crítico"
-        tone={r.alertasActivas ? 'text-warning' : 'text-text-primary'}
-        barra={r.alertasActivas ? 'border-l-warning' : 'border-l-divider'}
-      />
-    </div>
-  )
-}
-
-/** Barra segmentada con leyenda: composicion, no un "anillo decorativo". */
-function Composicion({
-  titulo,
-  total,
-  partes,
-}: {
-  titulo: string
-  total: number
-  partes: { label: string; value: number; color: string }[]
-}) {
-  return (
-    <div>
-      <div className="flex items-baseline justify-between">
-        <h3 className="text-sm font-semibold text-text-primary">{titulo}</h3>
-        <span className="text-sm font-semibold text-text-primary tabular">{formatNumber(total)}</span>
-      </div>
-      <div className="mt-2 flex h-2 gap-px overflow-hidden rounded-full bg-surface-light" role="img" aria-label={`${titulo}: ${partes.map((p) => `${p.label} ${p.value}`).join(', ')}`}>
-        {total > 0 &&
-          partes.map((p) => (
-            <motion.span
-              key={p.label}
-              className={p.color}
-              initial={{ width: 0 }}
-              animate={{ width: `${(p.value / total) * 100}%` }}
-              transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
-            />
-          ))}
-      </div>
-      <ul className="mt-2.5 flex flex-wrap gap-x-4 gap-y-1">
-        {partes.map((p) => (
-          <li key={p.label} className="flex items-center gap-1.5 text-xs text-text-muted">
-            <span className={cn('size-2 rounded-full', p.color)} aria-hidden />
-            {p.label}
-            <span className="font-semibold text-text-secondary tabular">{formatNumber(p.value)}</span>
-          </li>
-        ))}
-      </ul>
-    </div>
-  )
-}
-
-function Parque({ r }: { r: Resumen }) {
-  const tipos = Object.entries(r.domicilios.porTipo)
-  const colorTipo = ['bg-primary', 'bg-primary-dark', 'bg-info']
-  return (
-    <Panel>
-      <PanelHeader title="Parque instalado" description="Qué hay en operación ahora mismo." />
-      <div className="flex flex-col gap-5 p-4">
-        <Composicion
-          titulo="Domicilios"
-          total={r.domicilios.total}
-          partes={[
-            { label: 'Activos', value: r.domicilios.activos, color: 'bg-success' },
-            { label: 'Suspendidos', value: r.domicilios.inactivos, color: 'bg-text-disabled' },
-          ]}
-        />
-        {tipos.length > 0 && (
-          <Composicion
-            titulo="Por tipo de inmueble"
-            total={r.domicilios.total}
-            partes={tipos.map(([k, v], i) => ({ label: k.charAt(0) + k.slice(1).toLowerCase(), value: v, color: colorTipo[i % 3] }))}
-          />
-        )}
-        <Composicion
-          titulo="Cuentas"
-          total={r.usuarios.total}
-          partes={[
-            { label: 'Propietarios', value: r.usuarios.propietarios, color: 'bg-primary' },
-            { label: 'Residentes', value: r.usuarios.residentes, color: 'bg-primary-dark' },
-            { label: 'Operadores', value: r.usuarios.operadores, color: 'bg-info' },
-            {
-              label: 'Administradores',
-              value: Math.max(0, r.usuarios.total - r.usuarios.propietarios - r.usuarios.residentes - r.usuarios.operadores),
-              color: 'bg-text-secondary',
-            },
-          ]}
-        />
-        <Composicion
-          titulo="Tarjetas RFID"
-          total={r.tarjetas.total}
-          partes={[
-            { label: 'Activas', value: r.tarjetas.activas, color: 'bg-success' },
-            { label: 'Inactivas', value: r.tarjetas.total - r.tarjetas.activas, color: 'bg-text-disabled' },
-          ]}
-        />
-      </div>
-    </Panel>
-  )
-}
+import { EstadoHoy } from './DashboardIndicadores'
+import { Parque } from './DashboardParque'
 
 function ResumenSkeleton() {
   return (
@@ -151,49 +25,80 @@ function ResumenSkeleton() {
 export function DashboardPage() {
   const resumen = useResumen()
   const eventos = useEventos(20)
+  const [ultimaActualizacion, setUltimaActualizacion] = useState(() => new Date())
+
+  const actualizar = async () => {
+    await Promise.all([resumen.refetch(), eventos.refetch()])
+    setUltimaActualizacion(new Date())
+  }
 
   return (
     <>
-      <PageHeader title="Resumen" description="Accesos, intrusiones y alertas de las últimas 24 horas." />
+      <PageHeader
+        title="Resumen"
+        description="Accesos, intrusiones y alertas de las últimas 24 horas."
+        actions={
+          <div className="flex items-center gap-3">
+            <span className="text-xs text-text-muted">
+              Actualizado: {ultimaActualizacion.toLocaleTimeString('es-PE', { hour: '2-digit', minute: '2-digit' })}
+            </span>
+            <button type="button" onClick={() => void actualizar()}
+              className="inline-flex cursor-pointer items-center gap-1.5 rounded-lg border border-divider bg-surface px-3 py-1.5 text-xs font-medium text-text-secondary transition-colors hover:bg-surface-light">
+              <RefreshCw className="size-3.5" aria-hidden />Actualizar
+            </button>
+          </div>
+        }
+      />
+
       {resumen.isPending ? (
         <ResumenSkeleton />
       ) : resumen.isError ? (
-        <Panel>
-          <ErrorState error={resumen.error} onRetry={() => resumen.refetch()} />
-        </Panel>
+        <Panel><ErrorState error={resumen.error} onRetry={() => resumen.refetch()} /></Panel>
       ) : (
-        <div className="flex flex-col gap-5">
-          <EstadoHoy r={resumen.data} />
-          <div className="grid items-start gap-5 xl:grid-cols-[minmax(0,1.7fr)_minmax(0,1fr)]">
+        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.5 }} className="flex flex-col gap-6">
+          <div className={`flex items-center gap-2 rounded-lg px-4 py-2.5 text-xs font-medium ring-1 ${resumen.data.alertasActivas ? 'bg-warning/10 text-warning ring-warning/20' : 'bg-success/10 text-success ring-success/20'}`}>
+            {resumen.data.alertasActivas ? <AlertTriangle className="size-4" aria-hidden /> : <CheckCircle2 className="size-4" aria-hidden />}
+            <span>{resumen.data.alertasActivas ? `${resumen.data.alertasActivas} alertas activas` : 'Sin alertas activas'}</span>
+            <span className="ml-auto text-text-muted">
+              <Clock className="mr-1 inline size-3" aria-hidden />
+              {eventos.isPending ? 'Cargando actividad…' : eventos.isError ? 'Actividad no disponible' : `${eventos.data.length} eventos recientes`}
+            </span>
+          </div>
+
+          <EstadoHoy resumen={resumen.data} />
+
+          <div className="grid items-start gap-6 xl:grid-cols-[minmax(0,1.7fr)_minmax(0,1fr)]">
             <Panel>
               <PanelHeader
-                title="Actividad reciente"
+                title={<span className="inline-flex items-center gap-2"><Radio className="size-4" aria-hidden />Actividad reciente</span>}
                 description="Se actualiza sola cuando el canal en vivo está conectado."
                 actions={
-                  <Link to="/panel/actividad" className="inline-flex items-center gap-1 text-[0.8125rem] font-medium text-primary hover:underline">
-                    Ver todo <ArrowRight className="size-3.5" aria-hidden />
+                  <Link to="/panel/actividad" className="group inline-flex items-center gap-1 text-[0.8125rem] font-medium text-primary transition-colors hover:text-primary-dark">
+                    Ver todo <ArrowRight className="size-3.5 transition-transform group-hover:translate-x-0.5" aria-hidden />
                   </Link>
                 }
               />
               {eventos.isPending ? (
                 <div className="flex flex-col gap-3 p-4">
-                  {Array.from({ length: 5 }, (_, i) => <Skeleton key={i} className="h-12" />)}
+                  {Array.from({ length: 5 }, (_, i) => (
+                    <motion.div key={i} initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: i * 0.1 }}>
+                      <Skeleton className="h-12" />
+                    </motion.div>
+                  ))}
                 </div>
               ) : eventos.isError ? (
                 <ErrorState error={eventos.error} onRetry={() => eventos.refetch()} />
               ) : eventos.data.length === 0 ? (
-                <EmptyState
-                  icon={<Radio className="size-5" aria-hidden />}
-                  title="Aún no hay actividad"
-                  description="Cuando las puertas registren accesos, alertas o cambios, aparecerán aquí al instante."
-                />
+                <EmptyState icon={<Radio className="size-5" aria-hidden />} title="Aún no hay actividad"
+                  description="Cuando las puertas registren accesos, alertas o cambios, aparecerán aquí al instante." />
               ) : (
                 <EventFeed eventos={eventos.data} />
               )}
             </Panel>
-            <Parque r={resumen.data} />
+
+            <Parque resumen={resumen.data} />
           </div>
-        </div>
+        </motion.div>
       )}
     </>
   )
