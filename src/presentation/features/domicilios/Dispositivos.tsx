@@ -1,120 +1,27 @@
-import { useState, type FormEvent } from 'react'
-import { Check, Copy, Cpu, Plus, TriangleAlert } from 'lucide-react'
-import { z } from 'zod'
+import { Cpu } from 'lucide-react'
 import { formatRelative } from '@/core/utils/format'
-import { type CredencialesDispositivo, type Domicilio } from '@/domain/models'
+import { type Domicilio } from '@/domain/models'
 import { Badge } from '../../components/ui/Badge'
-import { Button } from '../../components/ui/Button'
 import { ConfirmButton } from '../../components/ui/ConfirmButton'
-import { InputField } from '../../components/ui/Field'
 import { ErrorState, Skeleton } from '../../components/ui/States'
 import { useToast } from '../../components/ui/Toast'
-import { useDispositivos, useRegistrarDispositivo, useRevocarDispositivo } from '../../hooks/queries'
+import { useDispositivos, useRevocarDispositivo } from '../../hooks/queries'
 
-// ------------------------------------------------------------------ copiar
-function CopyField({ label, value }: { label: string; value: string }) {
-  const [ok, setOk] = useState(false)
-  return (
-    <div>
-      <p className="mb-1.5 text-xs font-medium text-text-muted">{label}</p>
-      <div className="flex items-center gap-2 rounded-[var(--radius-control)] border border-divider bg-background p-2 pl-3">
-        <code className="min-w-0 flex-1 break-all font-mono text-xs text-text-primary">{value}</code>
-        <Button
-          size="sm"
-          variant="ghost"
-          aria-label={`Copiar ${label}`}
-          onClick={async () => {
-            await navigator.clipboard.writeText(value).catch(() => undefined)
-            setOk(true)
-            setTimeout(() => setOk(false), 1600)
-          }}
-          icon={ok ? <Check className="size-3.5 text-success" aria-hidden /> : <Copy className="size-3.5" aria-hidden />}
-        >
-          {ok ? 'Copiado' : 'Copiar'}
-        </Button>
-      </div>
-    </div>
-  )
-}
-
-// ------------------------------------------------------------------ dispositivos
-const IpSchema = z.object({
-  nombre: z.string().trim().max(100),
-  ip: z.string().trim().regex(/^(\d{1,3}\.){3}\d{1,3}$|^$/, 'IPv4 no válida (ej. 192.168.1.50).'),
-  puerto: z.coerce.number().int().min(1, 'Puerto 1–65535.').max(65535, 'Puerto 1–65535.'),
-})
-
+/** Puertas de un domicilio: estado y revocacion. El alta la hace el tecnico en la app. */
 export function Dispositivos({ domicilio }: { domicilio: Domicilio }) {
   const lista = useDispositivos(domicilio.id)
-  const registrar = useRegistrarDispositivo(domicilio.id)
   const revocar = useRevocarDispositivo(domicilio.id)
   const toast = useToast()
-  const [form, setForm] = useState({ nombre: '', ip: '', puerto: '80' })
-  const [errors, setErrors] = useState<Record<string, string | undefined>>({})
-  const [creds, setCreds] = useState<CredencialesDispositivo | null>(null)
-  const [abierto, setAbierto] = useState(false)
-
-  const submit = (e: FormEvent) => {
-    e.preventDefault()
-    const p = IpSchema.safeParse(form)
-    if (!p.success) {
-      const f = p.error.flatten().fieldErrors
-      return setErrors({ ip: f.ip?.[0], puerto: f.puerto?.[0], nombre: f.nombre?.[0] })
-    }
-    setErrors({})
-    registrar.mutate(p.data, {
-      onSuccess: (c) => {
-        setCreds(c)
-        setAbierto(false)
-        setForm({ nombre: '', ip: '', puerto: '80' })
-      },
-      onError: (err) => toast.error(err, 'No se registró el dispositivo'),
-    })
-  }
 
   return (
     <section className="mt-8">
       <div className="mb-3 flex items-center justify-between">
         <h3 className="text-sm font-semibold text-text-primary">Dispositivos de la puerta</h3>
-        {!abierto && !creds && (
-          <Button size="sm" onClick={() => setAbierto(true)} icon={<Plus className="size-3.5" aria-hidden />}>Registrar</Button>
-        )}
       </div>
-
-      {creds && (
-        <div role="alert" className="mb-4 rounded-[var(--radius-card)] border border-warning/50 bg-warning/10 p-4">
-          <div className="flex items-start gap-3">
-            <TriangleAlert className="mt-0.5 size-4 shrink-0 text-warning" aria-hidden />
-            <div className="min-w-0 flex-1">
-              <p className="text-sm font-semibold text-text-primary">Guarda estas credenciales ahora</p>
-              <p className="mt-0.5 text-sm text-text-secondary">
-                No se vuelven a mostrar. Grábalas en el firmware del ESP32: el ID y el secreto autentican la puerta;
-                la clave de firma verifica los comandos.
-              </p>
-            </div>
-          </div>
-          <div className="mt-4 flex flex-col gap-3">
-            <CopyField label="ID del dispositivo (X-Device-ID)" value={creds.dispositivo.uuid} />
-            <CopyField label="Secreto (X-API-Key)" value={creds.secreto} />
-            <CopyField label="Clave de firma HMAC" value={creds.claveFirma} />
-          </div>
-          <Button size="sm" variant="secondary" className="mt-4" onClick={() => setCreds(null)}>Ya las guardé</Button>
-        </div>
-      )}
-
-      {abierto && (
-        <form onSubmit={submit} noValidate className="mb-4 flex flex-col gap-3 rounded-[var(--radius-card)] border border-divider bg-background/60 p-4">
-          <InputField label="Nombre" placeholder="Puerta principal" value={form.nombre} onChange={(e) => setForm({ ...form, nombre: e.target.value })} error={errors.nombre} />
-          <div className="grid grid-cols-[1fr_7rem] gap-3">
-            <InputField label="IP en la red de la casa" placeholder="192.168.1.50" inputMode="decimal" value={form.ip} onChange={(e) => setForm({ ...form, ip: e.target.value })} error={errors.ip} />
-            <InputField label="Puerto" inputMode="numeric" value={form.puerto} onChange={(e) => setForm({ ...form, puerto: e.target.value })} error={errors.puerto} />
-          </div>
-          <div className="flex justify-end gap-2">
-            <Button size="sm" variant="ghost" onClick={() => setAbierto(false)}>Cancelar</Button>
-            <Button size="sm" variant="primary" type="submit" loading={registrar.isPending}>Registrar y generar credenciales</Button>
-          </div>
-        </form>
-      )}
+      <p className="mb-3 text-xs text-text-muted">
+        Las puertas las registra y configura el técnico desde la app durante la instalación. Aquí puedes ver su
+        estado y revocar una puerta si se pierde o se reemplaza el equipo.
+      </p>
 
       {lista.isPending ? (
         <Skeleton className="h-16" />
@@ -122,7 +29,7 @@ export function Dispositivos({ domicilio }: { domicilio: Domicilio }) {
         <ErrorState error={lista.error} onRetry={() => lista.refetch()} />
       ) : lista.data.length === 0 ? (
         <p className="rounded-[var(--radius-card)] border border-dashed border-divider px-4 py-6 text-center text-sm text-text-muted">
-          Esta casa aún no tiene dispositivo. Sin uno, la puerta no puede abrirse desde la app ni con códigos.
+          Esta casa aún no tiene una puerta configurada. El técnico la registra durante la instalación.
         </p>
       ) : (
         <ul className="divide-y divide-divider/60 rounded-[var(--radius-card)] border border-divider">
@@ -132,7 +39,7 @@ export function Dispositivos({ domicilio }: { domicilio: Domicilio }) {
               <div className="min-w-0 flex-1">
                 <p className="text-sm font-medium text-text-primary">{d.nombre || 'Dispositivo sin nombre'}</p>
                 <p className="font-mono text-2xs text-text-muted">
-                  {d.ip || 'sin IP'}:{d.puerto} · {d.uuid.slice(0, 8)} · heartbeat {formatRelative(d.ultimoHeartbeat)}
+                  {d.uuid.slice(0, 8)} · última señal {formatRelative(d.ultimoHeartbeat)}
                 </p>
               </div>
               {!d.activo ? (
