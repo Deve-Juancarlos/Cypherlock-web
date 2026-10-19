@@ -2,3 +2,4 @@
 export { FormasDeAbrir } from './FormasDeAbrir'
 export { Instalacion } from './Instalacion'
 export { ParaQuien } from './ParaQuien'
+export { Tecnologia } from './Tecnologia'

@@ -21,6 +21,7 @@ function Marca({ claro = false }: { claro?: boolean }) {
 
 const ENLACES = [
   { href: '#como-abre', label: 'Cómo abre' },
+  { href: '#tecnologia', label: 'Tecnología' },
   { href: '#app', label: 'La app' },
   { href: '#instalacion', label: 'Instalación' },
   { href: '#contacto', label: 'Contacto' },

@@ -5,6 +5,7 @@
 import { useEffect, useRef } from 'react'
 import * as THREE from 'three'
 import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js'
+import { construirEscenario } from './escenario'
 import { COLOR, construirPuerta, liberar } from './puertaModelo'
 
 const CICLO = 7.2
@@ -46,8 +47,8 @@ function montar(el: HTMLDivElement): (() => void) | undefined {
   scene.environment = environment.texture
 
   const camera = new THREE.PerspectiveCamera(30, 1, 0.1, 50)
-  camera.position.set(1.9, 0.55, 5.2)
-  camera.lookAt(0.15, -0.05, 0)
+  camera.position.set(2.2, 0.85, 6.1)
+  camera.lookAt(0.1, -0.22, 0)
 
   // Iluminación
   scene.add(new THREE.HemisphereLight(0xcfe8ee, 0x05080a, 1.2))
@@ -71,6 +72,8 @@ function montar(el: HTMLDivElement): (() => void) | undefined {
 
   const p = construirPuerta()
   p.raiz.rotation.y = GIRO_BASE
+  const escenario = construirEscenario()
+  p.raiz.add(escenario.raiz)
   scene.add(p.raiz)
 
   // Estado de animación
@@ -120,6 +123,7 @@ function montar(el: HTMLDivElement): (() => void) | undefined {
     calidez.intensity = THREE.MathUtils.lerp(calidez.intensity, abrir * 5, dt * 5)
     ;(p.interior.material as THREE.MeshBasicMaterial).color.copy(luz).multiplyScalar(0.15 + 0.85 * abrir)
     ;(p.derrame.material as THREE.MeshBasicMaterial).opacity = abrir * 0.8
+    escenario.animar(t, dt, verde)
 
     // 4. Paralaje suave de toda la escena con el mouse
     const k = 1 - Math.exp(-dt * 4)

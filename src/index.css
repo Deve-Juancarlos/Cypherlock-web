@@ -28,6 +28,10 @@
   --color-banda-texto-3: #7a8b91;
   --color-banda-linea: #1f2e35;
   --color-banda-senal: #2cd4e6;
+  /* Cobre vivo: acento calido legible (AA) sobre la banda oscura */
+  --color-banda-cobre: #f39a62;
+  /* Vidrio de las tarjetas flotantes sobre la banda */
+  --color-banda-vidrio: rgb(19 30 35 / 0.72);
 
   /*
    * Sitio publico: claro y con color. Petroleo (senal) para informacion y
@@ -166,6 +170,15 @@
       animation-duration: 0.01ms !important;
       transition-duration: 0.01ms !important;
     }
+  }
+
+  /* Reticula tecnica de las bandas oscuras (hero y bento) */
+  .reticula {
+    background-image:
+      linear-gradient(to right, rgb(44 212 230 / 0.06) 1px, transparent 1px),
+      linear-gradient(to bottom, rgb(44 212 230 / 0.06) 1px, transparent 1px);
+    background-size: 56px 56px;
+    mask-image: radial-gradient(ellipse at 70% 40%, black 20%, transparent 75%);
   }
 
   /* Suavizar solo las teselas: el pin y los controles conservan su color. */

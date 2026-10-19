@@ -74,12 +74,12 @@ function plano(w: number, h: number, mapa: THREE.Texture, aditivo = false) {
 export function construirPuerta() {
   const raiz = new THREE.Group()
   const mat = {
-    hoja: new THREE.MeshStandardMaterial({ color: COLOR.hoja, roughness: 0.45, metalness: 0.35 }),
+    hoja: new THREE.MeshPhysicalMaterial({ color: COLOR.hoja, roughness: 0.4, metalness: 0.35, clearcoat: 0.6, clearcoatRoughness: 0.25 }),
     tablero: new THREE.MeshStandardMaterial({ color: COLOR.tablero, roughness: 0.55, metalness: 0.3 }),
     marco: new THREE.MeshStandardMaterial({ color: COLOR.marco, roughness: 0.6, metalness: 0.2 }),
-    acero: new THREE.MeshStandardMaterial({ color: COLOR.acero, roughness: 0.25, metalness: 0.9 }),
+    acero: new THREE.MeshStandardMaterial({ color: COLOR.acero, roughness: 0.18, metalness: 1 }),
     carcasa: new THREE.MeshStandardMaterial({ color: COLOR.carcasa, roughness: 0.3, metalness: 0.6 }),
-    vidrio: new THREE.MeshStandardMaterial({ color: 0x050809, roughness: 0.05, metalness: 0.3 }),
+    vidrio: new THREE.MeshPhysicalMaterial({ color: 0x050809, roughness: 0.04, metalness: 0.3, clearcoat: 1 }),
     led: new THREE.MeshStandardMaterial({ color: COLOR.ledCerrado, emissive: COLOR.ledCerrado, emissiveIntensity: 2.4 }),
   }
 
@@ -186,7 +186,7 @@ export function construirPuerta() {
 
 export function liberar(scene: THREE.Scene) {
   scene.traverse((o) => {
-    if (o instanceof THREE.Mesh) {
+    if (o instanceof THREE.Mesh || o instanceof THREE.Points) {
       o.geometry.dispose()
       const materials = Array.isArray(o.material) ? o.material : [o.material]
       for (const m of materials) {
