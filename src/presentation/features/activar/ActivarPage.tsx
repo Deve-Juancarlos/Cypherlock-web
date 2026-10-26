@@ -7,13 +7,15 @@
 import { useState } from 'react'
 import { useParams } from 'react-router-dom'
 import { Check, Copy, Download, KeyRound, Smartphone } from 'lucide-react'
+import { ActivarCuentaForm } from './ActivarCuentaForm'
 
 const APK = '/descargas/cypherlock-android.apk'
 const PAQUETE = 'com.example.cypherlock_flutter'
 
-function enlaceApp(codigo: string) {
+function enlaceApp(codigo: string, activada: boolean) {
   const respaldo = encodeURIComponent(`${window.location.origin}${APK}`)
-  return `intent://app/signup?codigo=${codigo}#Intent;scheme=cypherlock;package=${PAQUETE};S.browser_fallback_url=${respaldo};end`
+  const destino = activada ? 'login' : `signup?codigo=${codigo}`
+  return `intent://app/${destino}#Intent;scheme=cypherlock;package=${PAQUETE};S.browser_fallback_url=${respaldo};end`
 }
 
 function Paso({ n, titulo, children }: { n: number; titulo: string; children: React.ReactNode }) {
@@ -32,6 +34,7 @@ export function ActivarPage() {
   const { codigo: crudo = '' } = useParams()
   const codigo = crudo.toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 20)
   const [copiado, setCopiado] = useState(false)
+  const [activada, setActivada] = useState(false)
   const boton =
     'flex h-12 w-full items-center justify-center gap-2 rounded-[var(--radius-control)] font-semibold transition-opacity active:opacity-80'
 
@@ -72,6 +75,8 @@ export function ActivarPage() {
             </button>
           </div>
 
+          <ActivarCuentaForm codigo={codigo} onActivated={() => setActivada(true)} />
+
           <ol className="mt-6 space-y-3">
             <Paso n={1} titulo="Descarga la app">
               <p>Solo para Android. Si el celular lo pregunta, permite instalar apps desde el navegador.</p>
@@ -79,21 +84,22 @@ export function ActivarPage() {
                 <Download className="size-5" aria-hidden /> Descargar CYPHERLOCK
               </a>
             </Paso>
-            <Paso n={2} titulo="Abre la app con tu código">
-              <p>Cuando esté instalada, vuelve a esta página y toca el botón. La app se abrirá con tu código ya escrito.</p>
-              <a href={codigo ? enlaceApp(codigo) : undefined} className={`${boton} mt-4 bg-senal text-white`}>
-                <Smartphone className="size-5" aria-hidden /> Abrir la app y activar
+            <Paso n={2} titulo={activada ? 'Inicia sesión en la app' : 'Abre la app con tu código'}>
+              <p>{activada ? 'Usa el usuario y la contraseña que acabas de crear.' :
+                'Cuando esté instalada, vuelve a esta página y toca el botón. La app se abrirá con tu código ya escrito.'}</p>
+              <a href={codigo ? enlaceApp(codigo, activada) : undefined} className={`${boton} mt-4 bg-senal text-white`}>
+                <Smartphone className="size-5" aria-hidden /> {activada ? 'Abrir la app e iniciar sesión' : 'Abrir la app y activar'}
               </a>
             </Paso>
-            <Paso n={3} titulo="Crea tu usuario y contraseña">
+            {!activada && <Paso n={3} titulo="También puedes activar desde la app">
               <p>
-                Elige tu nombre de usuario, tu correo y una contraseña, y toca <strong className="text-texto">Activar mi cuenta</strong>.
-                Luego inicia sesión: verás tu puerta lista para abrir.
+                Si prefieres usar la app, crea allí tu usuario y contraseña con este código.
+                Si ya activaste tu cuenta arriba, inicia sesión en la app: verás tu casa.
               </p>
               <p className="mt-2 text-texto-3">
                 ¿El botón no abre la app? Ábrela tú, toca «Activar mi cuenta» en la pantalla de ingreso y escribe el código de arriba.
               </p>
-            </Paso>
+            </Paso>}
           </ol>
           <p className="mt-6 text-xs text-texto-3">El código sirve una sola vez. No lo compartas con nadie.</p>
         </div>
